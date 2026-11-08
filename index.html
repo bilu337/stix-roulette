@@ -54,6 +54,9 @@
   button.big:hover { background: var(--peach2); color: #1a0f08; box-shadow: 0 0 28px rgba(255,128,48,.8); }
   button.big:active { transform: scale(.97); }
   button.big:disabled { opacity: .45; cursor: default; box-shadow: none; }
+  .sound { display: inline-flex; align-items: center; gap: 6px; }
+  .sound button { padding: 4px 9px; font-size: 16px; }
+  .sound input { width: 90px; accent-color: var(--peach); }
   label.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); cursor: pointer; user-select: none; }
   input[type=checkbox] { accent-color: var(--peach); }
   .count { color: var(--muted); font-size: 13px; }
@@ -159,6 +162,7 @@
     <div class="controls">
       <button class="big" id="roll">Losuj</button>
       <label class="chk opt"><input type="checkbox" id="noRepeat"> bez powtórzeń</label>
+      <span class="sound opt"><button id="mute" title="Dźwięk wł./wył. (M)">🔊</button><input type="range" id="vol" min="0" max="100" title="Głośność"></span>
     </div>
     <div class="history" id="history"></div>
   </section>
@@ -189,13 +193,73 @@
   if (new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
   // --- stan (localStorage tylko jako wygoda; bez niego też działa) ---
-  let state = { off: [], used: [], history: [], noRepeat: false };
+  let state = { off: [], used: [], history: [], noRepeat: false, muted: false, vol: 70 };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
   const off = new Set(state.off), used = new Set(state.used);
   const persist = () => { state.off = [...off]; state.used = [...used]; save(); };
 
   $('noRepeat').checked = state.noRepeat;
+
+  // --- dźwięki: generowane w przeglądarce (Web Audio), bez plików ---
+  const SFX = (() => {
+    let ctx = null, master = null;
+    const init = () => {
+      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+        ctx = new AC(); master = ctx.createGain(); master.connect(ctx.destination); }
+      if (ctx.state === 'suspended') ctx.resume();
+      master.gain.value = state.muted ? 0 : (state.vol / 100) * 0.6;
+      return ctx;
+    };
+    const tone = (freq, t0, dur, { type = 'sine', vol = .3, slideTo = null, attack = .005 } = {}) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t0);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + attack);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g).connect(master); o.start(t0); o.stop(t0 + dur + .02);
+    };
+    const noise = (t0, dur, { vol = .2, from = 400, to = 4000, q = 1 } = {}) => {
+      const len = Math.floor(ctx.sampleRate * dur), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = q;
+      f.frequency.setValueAtTime(from, t0); f.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + dur * .3); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      src.connect(f).connect(g).connect(master); src.start(t0); src.stop(t0 + dur);
+    };
+    const go = fn => { if (state.muted || !init()) return; fn(ctx.currentTime); };
+    const arp = (t, notes, step, opts) => notes.forEach((f, i) => tone(f, t + i * step, opts.dur || .4, opts));
+    return {
+      unlock: () => init(),
+      start: () => go(t => { noise(t, .55, { vol: .25, from: 300, to: 3500, q: .8 }); tone(180, t, .5, { type: 'triangle', vol: .12, slideTo: 420 }); }),
+      tick: (speed) => go(t => { // speed 0..1 → wyższy, krótszy klik przy szybkiej taśmie
+        tone(1300 + 900 * speed + Math.random() * 120, t, .035, { type: 'square', vol: .07 });
+        tone(210, t, .05, { type: 'sine', vol: .12 }); }),
+      win: (tier) => go(t => {
+        if (tier === 'S') { // fanfara
+          arp(t, [523, 659, 784, 1047], .09, { type: 'triangle', vol: .22, dur: .5 });
+          [523, 659, 784, 1047, 1319].forEach(f => tone(f, t + .4, 1.4, { type: 'sawtooth', vol: .05, attack: .02 }));
+          noise(t + .38, .9, { vol: .12, from: 6000, to: 9000, q: .5 });
+        } else if (tier === 'A') arp(t, [587, 740, 880, 1175], .08, { type: 'triangle', vol: .2, dur: .55 });
+        else if (tier === 'B') arp(t, [523, 659, 784], .09, { type: 'sine', vol: .22, dur: .45 });
+        else if (tier === 'C') arp(t, [440, 523], .12, { type: 'sine', vol: .2, dur: .4 });
+        else if (tier === 'D') { // smutna trąbka
+          [392, 370, 349].forEach((f, i) => tone(f, t + i * .32, .3, { type: 'sawtooth', vol: .09, attack: .03 }));
+          tone(330, t + .96, .9, { type: 'sawtooth', vol: .09, slideTo: 300, attack: .03 });
+        } else arp(t, [494, 659], .1, { type: 'triangle', vol: .18, dur: .4 });
+      }),
+      click: (on) => go(t => tone(on ? 880 : 520, t, .06, { type: 'triangle', vol: .12 })),
+      lock: () => go(t => { tone(1500, t, .05, { type: 'square', vol: .05 }); tone(1100, t + .05, .08, { type: 'square', vol: .05 }); }),
+      setVol: () => { if (ctx) master.gain.value = state.muted ? 0 : (state.vol / 100) * 0.6; },
+    };
+  })();
+  const muteBtn = $('mute'), volIn = $('vol');
+  const syncSound = () => { muteBtn.textContent = state.muted ? '🔇' : '🔊'; volIn.value = state.vol; SFX.setVol(); save(); };
+  muteBtn.onclick = () => { state.muted = !state.muted; syncSound(); };
+  volIn.oninput = e => { state.vol = +e.target.value; if (state.muted) state.muted = false; syncSound(); };
+  volIn.onchange = () => SFX.click(true);
+  syncSound();
   $('noRepeat').onchange = e => { state.noRepeat = e.target.checked; refresh(); };
 
   // preload obrazków, żeby animacja nie mrugała
@@ -236,8 +300,8 @@
       const n = document.createElement('div'); n.className = 'n'; n.textContent = w.name; c.append(n);
       c.onclick = () => {
         // zablokowana przez „bez powtórzeń” → klik odblokowuje; inaczej zwykłe wł./wył.
-        if (state.noRepeat && used.has(w.name)) used.delete(w.name);
-        else off.has(w.name) ? off.delete(w.name) : off.add(w.name);
+        if (state.noRepeat && used.has(w.name)) { used.delete(w.name); SFX.lock(); }
+        else { off.has(w.name) ? off.delete(w.name) : off.add(w.name); SFX.click(!off.has(w.name)); }
         refresh();
       };
       cards.set(w.name, c); g.append(c);
@@ -253,7 +317,7 @@
     const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = t === 'X' ? '?' : t;
     b.append(bd, document.createTextNode(`(${list.length})`));
     b.title = t === 'X' ? 'bronie bez oceny' : 'tier ' + t;
-    b.onclick = () => { const anyOn = list.some(w => !off.has(w.name)); list.forEach(w => anyOn ? off.add(w.name) : off.delete(w.name)); refresh(); };
+    b.onclick = () => { const anyOn = list.some(w => !off.has(w.name)); list.forEach(w => anyOn ? off.add(w.name) : off.delete(w.name)); SFX.click(!anyOn); refresh(); };
     tierBtns[t] = { b, list }; $('tiers').append(b);
   });
 
@@ -329,11 +393,28 @@
     void strip.offsetWidth; // wymuś layout przed startem animacji
     strip.style.transition = 'transform 6.5s cubic-bezier(.06,.55,.1,1)';
     strip.style.transform = `translateX(${-target}px)`;
+    SFX.start();
+    // tykanie: klik za każdym razem, gdy pod wskaźnikiem pojawia się nowy kafelek
+    const half = reel.clientWidth / 2; let lastIdx = -1, lastX = 0, lastT = performance.now();
+    const watch = now => {
+      if (done) return;
+      const x = -new DOMMatrixReadOnly(getComputedStyle(strip).transform).m41;
+      const idx = Math.floor((x + half) / STEP);
+      if (idx !== lastIdx) {
+        const v = Math.abs(x - lastX) / Math.max(1, now - lastT); // px/ms
+        if (lastIdx !== -1) SFX.tick(Math.min(1, v / 4));
+        lastIdx = idx;
+      }
+      lastX = x; lastT = now;
+      requestAnimationFrame(watch);
+    };
 
     let done = false;
+    requestAnimationFrame(watch);
     const finish = () => {
       if (done) return; done = true;
       strip.children[WIN_IDX].classList.add('win');
+      SFX.win(winner.tier);
       $('name').textContent = winner.name; setLabel(winner);
       stage.classList.remove('spinning'); stage.classList.add('win');
       cards.get(winner.name)?.classList.add('hit');
@@ -349,6 +430,7 @@
   document.addEventListener('keydown', e => {
     // spacja zawsze losuje (także gdy fokus jest na innym przycisku/checkboksie)
     if (e.code === 'Space' && !e.repeat) { e.preventDefault(); roll(); }
+    if (e.code === 'KeyM' && !e.repeat) { state.muted = !state.muted; syncSound(); }
   });
 
   refresh(); renderHistory();
