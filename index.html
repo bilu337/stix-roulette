@@ -72,6 +72,25 @@
   .pointer::before { top: 0; border-top-color: var(--peach); }
   .pointer::after { bottom: 0; border-bottom-color: var(--peach); }
 
+  /* Tiery (kolory jak rzadkość przedmiotów) */
+  .t-S { --tc: #ff5c5c; } .t-A { --tc: #c084fc; } .t-B { --tc: #60a5fa; }
+  .t-C { --tc: #4ade80; } .t-D { --tc: #9ca3af; } .t-X { --tc: #4a4a4a; }
+  .tb { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 6px;
+    background: var(--tc); color: #111; font-weight: 700; font-size: 12px; letter-spacing: .02em; line-height: 1; }
+  .t-X .tb { color: #ddd; }
+  .card[class*="t-"] { border-color: color-mix(in srgb, var(--tc) 60%, var(--line)); box-shadow: inset 0 -3px 0 var(--tc); }
+  .card .tb { position: absolute; top: 6px; left: 6px; }
+  .ri[class*="t-"] { border-color: color-mix(in srgb, var(--tc) 70%, var(--line));
+    background: linear-gradient(to top, color-mix(in srgb, var(--tc) 28%, transparent), transparent 55%), rgba(20,20,20,.92); box-shadow: inset 0 -4px 0 var(--tc); }
+  .ri { position: relative; }
+  .ri .tb { position: absolute; top: 8px; left: 8px; }
+  .ri.win { border-color: var(--tc); box-shadow: inset 0 -4px 0 var(--tc), 0 0 0 2px var(--tc), 0 0 32px var(--tc); }
+  .stage .cls { display: inline-flex; gap: 10px; align-items: center; }
+  .stage .cls .tb { font-size: 13px; height: 22px; padding: 0 8px; letter-spacing: .08em; box-shadow: 0 0 14px var(--tc); }
+  .tiers { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+  .tiers button { padding: 3px 8px; display: inline-flex; gap: 6px; align-items: center; font-size: 12px; }
+  .tiers button.alloff { opacity: .4; }
+
   /* Historia */
   .history { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; min-height: 30px; }
   .history .h { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
@@ -154,10 +173,11 @@
       </div>
     </div>
     <p class="hint">Kliknij broń, żeby wyłączyć ją z losowania (albo włączyć z powrotem). Przy „bez powtórzeń” wylosowana broń dostaje 🔒 — klik ją odblokowuje. Ustawienia zapisują się w przeglądarce.</p>
+    <div class="tiers" id="tiers">Tier (klik = wł./wył. cały tier):</div>
     <div id="cats"></div>
   </section>
 
-  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni i grafiki: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
+  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni i grafiki: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA. Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, „?” = brak oceny. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
 </div>
 
 <script src="weapons.js"></script>
@@ -181,6 +201,18 @@
   // preload obrazków, żeby animacja nie mrugała
   W.forEach(w => { if (w.img) { const i = new Image(); i.src = w.img; } });
 
+  // --- tiery ---
+  const TIERS = ['S', 'A', 'B', 'C', 'D', 'X'];
+  const tcls = w => 't-' + (w.tier || 'X');
+  const tname = w => w.tier ? 'tier ' + w.tier : 'brak oceny';
+  function badge(w) { const b = document.createElement('span'); b.className = 'tb'; b.textContent = w.tier || '?'; return b; }
+  function setLabel(w) {
+    const el = $('cls'); el.innerHTML = ''; el.className = 'cls ' + tcls(w);
+    const b = badge(w); b.textContent = w.tier ? 'TIER ' + w.tier : 'TIER ?';
+    const t = document.createElement('span'); t.textContent = w.cls;
+    el.append(b, t);
+  }
+
   // --- pula ---
   const cards = new Map();
   const byCls = {};
@@ -198,7 +230,8 @@
     t.append(bOn, bOff);
     const g = document.createElement('div'); g.className = 'grid';
     list.forEach(w => {
-      const c = document.createElement('div'); c.className = 'card'; c.title = w.full;
+      const c = document.createElement('div'); c.className = 'card ' + tcls(w); c.title = w.full + ' — ' + tname(w);
+      c.append(badge(w));
       if (w.img) { const im = document.createElement('img'); im.src = w.img; im.alt = ''; im.loading = 'lazy'; c.append(im); }
       const n = document.createElement('div'); n.className = 'n'; n.textContent = w.name; c.append(n);
       c.onclick = () => {
@@ -211,6 +244,18 @@
     });
     sec.append(t, g); catsEl.append(sec);
   }
+
+  const tierBtns = {};
+  TIERS.forEach(t => {
+    const list = W.filter(w => (w.tier || 'X') === t);
+    if (!list.length) return;
+    const b = document.createElement('button'); b.className = 't-' + t;
+    const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = t === 'X' ? '?' : t;
+    b.append(bd, document.createTextNode(`(${list.length})`));
+    b.title = t === 'X' ? 'bronie bez oceny' : 'tier ' + t;
+    b.onclick = () => { const anyOn = list.some(w => !off.has(w.name)); list.forEach(w => anyOn ? off.add(w.name) : off.delete(w.name)); refresh(); };
+    tierBtns[t] = { b, list }; $('tiers').append(b);
+  });
 
   $('allOn').onclick = () => { off.clear(); refresh(); };
   $('allOff').onclick = () => { W.forEach(w => off.add(w.name)); refresh(); };
@@ -228,6 +273,7 @@
       c.classList.toggle('off', off.has(name));
       c.classList.toggle('used', state.noRepeat && used.has(name) && !off.has(name));
     });
+    Object.values(tierBtns).forEach(({ b, list }) => b.classList.toggle('alloff', list.every(w => off.has(w.name))));
     persist(); updateCount();
   }
 
@@ -236,7 +282,7 @@
     const box = $('imgbox'); box.innerHTML = '';
     if (w.img) { const im = document.createElement('img'); im.src = w.img; im.alt = w.name; box.append(im); }
     $('name').textContent = w.name;
-    $('cls').textContent = w.cls;
+    setLabel(w);
   }
   function renderHistory() {
     const h = $('history'); h.innerHTML = '';
@@ -266,7 +312,7 @@
       let w = winner;
       if (k !== WIN_IDX) { do { w = p[Math.floor(Math.random() * p.length)]; } while (p.length > 1 && w === prev); }
       prev = w;
-      const it = document.createElement('div'); it.className = 'ri';
+      const it = document.createElement('div'); it.className = 'ri ' + tcls(w); it.append(badge(w));
       if (w.img) { const im = document.createElement('img'); im.src = w.img; im.alt = ''; it.append(im); }
       const n = document.createElement('div'); n.className = 'n'; n.textContent = w.name; it.append(n);
       strip.append(it);
@@ -288,7 +334,7 @@
     const finish = () => {
       if (done) return; done = true;
       strip.children[WIN_IDX].classList.add('win');
-      $('name').textContent = winner.name; $('cls').textContent = winner.cls;
+      $('name').textContent = winner.name; setLabel(winner);
       stage.classList.remove('spinning'); stage.classList.add('win');
       cards.get(winner.name)?.classList.add('hit');
       if (state.noRepeat) used.add(winner.name);
