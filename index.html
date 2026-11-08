@@ -94,6 +94,20 @@
   .tiers button { padding: 3px 8px; display: inline-flex; gap: 6px; align-items: center; font-size: 12px; }
   .tiers button.alloff { opacity: .4; }
 
+  /* Podglądająca kapibara (w trakcie losowania wychyla się z prawego dolnego rogu) */
+  .stage .peek { position: absolute; right: -10px; bottom: 0; height: 190px; width: auto; pointer-events: none; z-index: 3;
+    transform: translateY(105%) rotate(8deg); transform-origin: bottom right; transition: transform .6s cubic-bezier(.3,1.4,.5,1);
+    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 55% 60%, #000 55%, transparent 78%); mask-image: radial-gradient(ellipse 60% 70% at 55% 60%, #000 55%, transparent 78%); }
+  .stage.spinning .peek { transform: translateY(18%) rotate(-4deg); animation: peek-bob 1.6s ease-in-out .6s infinite; }
+  @keyframes peek-bob { 0%,100% { transform: translateY(18%) rotate(-4deg); } 50% { transform: translateY(14%) rotate(-7deg); } }
+
+  /* Deszcz kapibar przy tierze S */
+  .capy-rain { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+  .capy-rain img { position: absolute; top: -90px; border-radius: 50%; border: 2px solid var(--peach); box-shadow: 0 0 12px var(--glow);
+    animation: capy-fall linear forwards; }
+  @keyframes capy-fall { to { transform: translate(var(--dx), calc(100vh + 120px)) rotate(var(--rot)); } }
+  @media (max-width: 600px) { .stage .peek { display: none; } }
+
   /* Historia */
   .history { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; min-height: 30px; }
   .history .h { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
@@ -165,6 +179,7 @@
       <span class="sound opt"><button id="mute" title="Dźwięk wł./wył. (M)">🔊</button><input type="range" id="vol" min="0" max="100" title="Głośność"></span>
     </div>
     <div class="history" id="history"></div>
+    <img class="peek" src="brand/capy-chill.jpg" alt="" aria-hidden="true">
   </section>
 
   <section class="pool">
@@ -353,6 +368,21 @@
     state.history.slice(0, 10).forEach(n => { const s = document.createElement('span'); s.className = 'h'; s.textContent = n; h.append(s); });
   }
 
+  function capyRain() {
+    const box = document.createElement('div'); box.className = 'capy-rain';
+    for (let i = 0; i < 45; i++) {
+      const im = document.createElement('img'); im.src = 'brand/avatar.png'; im.alt = '';
+      const size = 34 + Math.random() * 46;
+      Object.assign(im.style, { width: size + 'px', height: size + 'px', left: (Math.random() * 100) + 'vw',
+        animationDuration: (2.4 + Math.random() * 2.2) + 's', animationDelay: (Math.random() * 1.2) + 's' });
+      im.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+      im.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+      box.append(im);
+    }
+    document.body.append(box);
+    setTimeout(() => box.remove(), 6000);
+  }
+
   let spinning = false;
   function roll() {
     if (spinning) return;
@@ -415,6 +445,7 @@
       if (done) return; done = true;
       strip.children[WIN_IDX].classList.add('win');
       SFX.win(winner.tier);
+      if (winner.tier === 'S') capyRain();
       $('name').textContent = winner.name; setLabel(winner);
       stage.classList.remove('spinning'); stage.classList.add('win');
       cards.get(winner.name)?.classList.add('hit');
