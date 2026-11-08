@@ -181,7 +181,7 @@
     <div id="cats"></div>
   </section>
 
-  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA, i <a href="https://bloxodes.com/wiki/arena-breakout-infinite/weapons" target="_blank" rel="noopener">Bloxodes</a>. Grafiki broni: Bloxodes (render z gry, © MoreFun Studios). Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, „?” = brak oceny. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
+  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA, i <a href="https://bloxodes.com/wiki/arena-breakout-infinite/weapons" target="_blank" rel="noopener">Bloxodes</a>. Grafiki broni: Bloxodes (render z gry, © MoreFun Studios). Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, tiery pozostałych broni to szacunek z recenzji i starszych list (szczegóły w dymku na karcie broni). Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
 </div>
 
 <script src="weapons.js"></script>
@@ -268,7 +268,7 @@
   // --- tiery ---
   const TIERS = ['S', 'A', 'B', 'C', 'D', 'X'];
   const tcls = w => 't-' + (w.tier || 'X');
-  const tname = w => w.tier ? 'tier ' + w.tier : 'brak oceny';
+  const tname = w => (w.tier ? 'tier ' + w.tier : 'brak oceny') + (w.tierNote ? ' (' + w.tierNote + ')' : '');
   function badge(w) { const b = document.createElement('span'); b.className = 'tb'; b.textContent = w.tier || '?'; return b; }
   function setLabel(w) {
     const el = $('cls'); el.innerHTML = ''; el.className = 'cls ' + tcls(w);

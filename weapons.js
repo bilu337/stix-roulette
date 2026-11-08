@@ -1,11 +1,12 @@
-// tier: ABI Season 7 tier list (topuplive.com, 17.09.2026); null = brak oceny
+// tier: ABI Season 7 tier list (topuplive.com, 17.09.2026); tierNote = własny szacunek (listopad 2026) dla broni spoza tej listy
 window.WEAPONS = [
  {
   "name": "A545",
   "full": "A545 Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/A545.png",
-  "tier": null
+  "tier": "A",
+  "tierNote": "szacunek: nowa w S7; twórcy i poradniki: top-tier (jak U191/H416), ale świeża i bez potwierdzenia masowej gry → nie S"
  },
  {
   "name": "ACE31",
@@ -33,7 +34,8 @@ window.WEAPONS = [
   "full": "AK-15SC Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/AK-15SC.png",
-  "tier": null
+  "tier": "B",
+  "tierNote": "szacunek: nowa w S7, „high-damage close-mid”, brak recenzji"
  },
  {
   "name": "AK-74N",
@@ -61,7 +63,8 @@ window.WEAPONS = [
   "full": "AKS-74U Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/AKS-74U.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: TreyEx D; „outclassed in every way” (2026)"
  },
  {
   "name": "AMB-17",
@@ -103,14 +106,16 @@ window.WEAPONS = [
   "full": "DT MDR Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/DT_MDR.png",
-  "tier": null
+  "tier": "B",
+  "tierNote": "szacunek: listy B; mocny budżetowy build, ale niespójny"
  },
  {
   "name": "F2000",
   "full": "F2000 Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/F2000.png",
-  "tier": null
+  "tier": "A",
+  "tierNote": "szacunek: starsze listy zgodnie A (Gfinity, Mobile Gaming Hub, TreyEx)"
  },
  {
   "name": "FAL",
@@ -131,7 +136,8 @@ window.WEAPONS = [
   "full": "G3 Assault Rifle",
   "cls": "Karabiny szturmowe",
   "img": "img/G3.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: TreyEx C; bez amunicji T6 traci sens"
  },
  {
   "name": "H416",
@@ -208,7 +214,8 @@ window.WEAPONS = [
   "full": "BM59 Carbine",
   "cls": "Karabinki",
   "img": "img/BM59.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: starsze listy B/A, brak nowszych ocen"
  },
  {
   "name": "M14",
@@ -229,7 +236,8 @@ window.WEAPONS = [
   "full": "M96 Carbine",
   "cls": "Karabinki",
   "img": "img/M96.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: progameguides C"
  },
  {
   "name": "Mini14",
@@ -243,14 +251,16 @@ window.WEAPONS = [
   "full": "SA85M Carbine",
   "cls": "Karabinki",
   "img": "img/SA85M.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: tani karabinek, brak recenzji (biedo)"
  },
  {
   "name": "SKS",
   "full": "SKS Carbine",
   "cls": "Karabinki",
   "img": "img/SKS.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: tani karabinek budżetowy (biedo)"
  },
  {
   "name": "SVTU",
@@ -327,7 +337,8 @@ window.WEAPONS = [
   "full": "Mosin-Nagant Bolt-Action Rifle",
   "cls": "Snajperki (bolt)",
   "img": "img/Mosin-Nagant.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: budżetowa snajperka, znerfiona w S5 (biedo)"
  },
  {
   "name": "SJ16",
@@ -376,7 +387,8 @@ window.WEAPONS = [
   "full": "MP9 Micro SMG",
   "cls": "Pistolety maszynowe",
   "img": "img/MP9.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: pistolet maszynowy, brak recenzji — poziom niżej niż G18C"
  },
  {
   "name": "MPF45",
@@ -411,28 +423,32 @@ window.WEAPONS = [
   "full": "QC61 Micro SMG",
   "cls": "Pistolety maszynowe",
   "img": "img/QC61.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: tani pistolet maszynowy, brak recenzji (biedo)"
  },
  {
   "name": "T79",
   "full": "T79 Micro SMG",
   "cls": "Pistolety maszynowe",
   "img": "img/T79.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: tani pistolet maszynowy, brak recenzji (biedo)"
  },
  {
   "name": "T85",
   "full": "T85 Micro SMG",
   "cls": "Pistolety maszynowe",
   "img": "img/T85.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: tani pistolet maszynowy, brak recenzji (biedo)"
  },
  {
   "name": "UMP45",
   "full": "UMP45 Micro SMG",
   "cls": "Pistolety maszynowe",
   "img": "img/UMP45.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: progameguides C; duży odrzut bez drogich modów"
  },
  {
   "name": "UZI",
@@ -495,7 +511,8 @@ window.WEAPONS = [
   "full": "CZ52 Pistol",
   "cls": "Pistolety",
   "img": "img/CZ52.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: stary pistolet (biedo)"
  },
  {
   "name": "Desert Eagle",
@@ -551,20 +568,23 @@ window.WEAPONS = [
   "full": "M9A3 Pistol",
   "cls": "Pistolety",
   "img": "img/M9A3.png",
-  "tier": null
+  "tier": "C",
+  "tierNote": "szacunek: podstawowy pistolet 9 mm, brak recenzji — poziom niżej niż G17"
  },
  {
   "name": "T05",
   "full": "T05 Pistol",
   "cls": "Pistolety",
   "img": "img/T05.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: rewolwer (biedo)"
  },
  {
   "name": "T54",
   "full": "T54 Pistol",
   "cls": "Pistolety",
   "img": "img/T54.png",
-  "tier": null
+  "tier": "D",
+  "tierNote": "szacunek: stary pistolet (biedo)"
  }
 ];
