@@ -58,6 +58,20 @@
   input[type=checkbox] { accent-color: var(--peach); }
   .count { color: var(--muted); font-size: 13px; }
 
+  /* Taśma losowania */
+  .reel { position: relative; width: 100%; height: 100%; overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); }
+  .strip { display: flex; gap: 12px; height: 100%; align-items: center; will-change: transform; }
+  .ri { flex: 0 0 240px; height: 200px; background: rgba(20,20,20,.9); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; transition: border-color .3s, box-shadow .3s, transform .3s; }
+  .ri img { width: 100%; height: 130px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.6)); }
+  .ri .n { font-weight: 600; margin-top: 8px; text-transform: uppercase; letter-spacing: .05em; }
+  .ri.win { border-color: var(--peach); box-shadow: 0 0 0 1px var(--peach), 0 0 28px var(--glow); transform: scale(1.06); }
+  .ri.win .n { color: var(--peach); }
+  .pointer { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: var(--peach); box-shadow: 0 0 12px var(--glow); z-index: 2; }
+  .pointer::before, .pointer::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 10px solid transparent; }
+  .pointer::before { top: 0; border-top-color: var(--peach); }
+  .pointer::after { bottom: 0; border-bottom-color: var(--peach); }
+
   /* Historia */
   .history { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; min-height: 30px; }
   .history .h { background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; color: var(--muted); }
@@ -241,26 +255,48 @@
     stage.classList.remove('win'); stage.classList.add('spinning');
     cards.forEach(c => c.classList.remove('hit'));
 
-    // uczciwy los: zwycięzca wybierany od razu, animacja to tylko efekt
+    // uczciwy los: zwycięzca wybierany od razu, taśma to tylko efekt
     const winner = p[crypto.getRandomValues(new Uint32Array(1))[0] % p.length];
-    const steps = 28;
-    let i = 0, last = null;
-    const tick = () => {
-      if (i < steps) {
-        let w; do { w = p[Math.floor(Math.random() * p.length)]; } while (p.length > 1 && w === last);
-        last = w; show(w); i++;
-        const t = i / steps;
-        setTimeout(tick, 40 + 260 * t * t * t);   // zwalnia pod koniec
-      } else {
-        show(winner);
-        stage.classList.remove('spinning'); stage.classList.add('win');
-        cards.get(winner.name)?.classList.add('hit');
-        if (state.noRepeat) used.add(winner.name);
-        state.history.unshift(winner.name); state.history = state.history.slice(0, 20);
-        spinning = false; refresh(); renderHistory();
-      }
+
+    // taśma jak przy otwieraniu skrzynek: zwycięzca na pozycji WIN_IDX
+    const ITEM = 240, GAP = 12, STEP = ITEM + GAP, WIN_IDX = 45, TOTAL = 52;
+    const strip = document.createElement('div'); strip.className = 'strip';
+    let prev = null;
+    for (let k = 0; k < TOTAL; k++) {
+      let w = winner;
+      if (k !== WIN_IDX) { do { w = p[Math.floor(Math.random() * p.length)]; } while (p.length > 1 && w === prev); }
+      prev = w;
+      const it = document.createElement('div'); it.className = 'ri';
+      if (w.img) { const im = document.createElement('img'); im.src = w.img; im.alt = ''; it.append(im); }
+      const n = document.createElement('div'); n.className = 'n'; n.textContent = w.name; it.append(n);
+      strip.append(it);
+    }
+    const reel = document.createElement('div'); reel.className = 'reel';
+    const ptr = document.createElement('div'); ptr.className = 'pointer';
+    reel.append(strip, ptr);
+    const box = $('imgbox'); box.innerHTML = ''; box.append(reel);
+    $('name').textContent = '…'; $('cls').textContent = '';
+
+    // gdzie dokładnie wskaźnik stanie na zwycięzcy — losowo, czasem tuż przy krawędzi (napięcie)
+    const jitter = (Math.random() * 0.84 - 0.42) * ITEM;
+    const target = WIN_IDX * STEP + ITEM / 2 - reel.clientWidth / 2 + jitter;
+    void strip.offsetWidth; // wymuś layout przed startem animacji
+    strip.style.transition = 'transform 6.5s cubic-bezier(.06,.55,.1,1)';
+    strip.style.transform = `translateX(${-target}px)`;
+
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      strip.children[WIN_IDX].classList.add('win');
+      $('name').textContent = winner.name; $('cls').textContent = winner.cls;
+      stage.classList.remove('spinning'); stage.classList.add('win');
+      cards.get(winner.name)?.classList.add('hit');
+      if (state.noRepeat) used.add(winner.name);
+      state.history.unshift(winner.name); state.history = state.history.slice(0, 20);
+      setTimeout(() => { show(winner); spinning = false; refresh(); renderHistory(); }, 1400);
     };
-    tick();
+    strip.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 7200); // zapas, gdyby karta była w tle i transitionend nie przyszedł
   }
 
   $('roll').onclick = roll;
