@@ -181,7 +181,7 @@
     <div id="cats"></div>
   </section>
 
-  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni i grafiki: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA. Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, „?” = brak oceny. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
+  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni i grafiki: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA. Grafiki A545, AK-15SC, Banshee i T88: <a href="https://bloxodes.com/wiki/arena-breakout-infinite/weapons" target="_blank" rel="noopener">Bloxodes</a>. Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, „?” = brak oceny. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
 </div>
 
 <script src="weapons.js"></script>
@@ -369,7 +369,7 @@
     const winner = p[crypto.getRandomValues(new Uint32Array(1))[0] % p.length];
 
     // taśma jak przy otwieraniu skrzynek: zwycięzca na pozycji WIN_IDX
-    const ITEM = 240, GAP = 12, STEP = ITEM + GAP, WIN_IDX = 45, TOTAL = 52;
+    const ITEM = 240, GAP = 12, STEP = ITEM + GAP, WIN_IDX = 55, TOTAL = 62;
     const strip = document.createElement('div'); strip.className = 'strip';
     let prev = null;
     for (let k = 0; k < TOTAL; k++) {
@@ -391,7 +391,7 @@
     const jitter = (Math.random() * 0.84 - 0.42) * ITEM;
     const target = WIN_IDX * STEP + ITEM / 2 - reel.clientWidth / 2 + jitter;
     void strip.offsetWidth; // wymuś layout przed startem animacji
-    strip.style.transition = 'transform 6.5s cubic-bezier(.06,.55,.1,1)';
+    strip.style.transition = 'transform 8.5s cubic-bezier(.06,.55,.1,1)';
     strip.style.transform = `translateX(${-target}px)`;
     SFX.start();
     // tykanie: klik za każdym razem, gdy pod wskaźnikiem pojawia się nowy kafelek
@@ -423,7 +423,7 @@
       setTimeout(() => { show(winner); spinning = false; refresh(); renderHistory(); }, 1400);
     };
     strip.addEventListener('transitionend', finish, { once: true });
-    setTimeout(finish, 7200); // zapas, gdyby karta była w tle i transitionend nie przyszedł
+    setTimeout(finish, 9300); // zapas, gdyby karta była w tle i transitionend nie przyszedł
   }
 
   $('roll').onclick = roll;

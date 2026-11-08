@@ -1,6 +1,13 @@
 // tier: ABI Season 7 tier list (topuplive.com, 17.09.2026); null = brak oceny
 window.WEAPONS = [
  {
+  "name": "A545",
+  "full": "A545 Assault Rifle",
+  "cls": "Karabiny szturmowe",
+  "img": "img/A545.webp",
+  "tier": null
+ },
+ {
   "name": "ACE31",
   "full": "ACE31 Assault Rifle",
   "cls": "Karabiny szturmowe",
@@ -20,6 +27,13 @@ window.WEAPONS = [
   "cls": "Karabiny szturmowe",
   "img": "img/AK-102.webp",
   "tier": "B"
+ },
+ {
+  "name": "AK-15SC",
+  "full": "AK-15SC Assault Rifle",
+  "cls": "Karabiny szturmowe",
+  "img": "img/AK-15SC.webp",
+  "tier": null
  },
  {
   "name": "AK-74N",
@@ -176,6 +190,13 @@ window.WEAPONS = [
   "tier": "A"
  },
  {
+  "name": "T192",
+  "full": "T192 Short Assault Rifle",
+  "cls": "Karabiny szturmowe",
+  "img": "img/T192.webp",
+  "tier": "A"
+ },
+ {
   "name": "T951",
   "full": "T951 Assault Rifle",
   "cls": "Karabiny szturmowe",
@@ -274,6 +295,13 @@ window.WEAPONS = [
   "tier": "S"
  },
  {
+  "name": "T88",
+  "full": "T88 Marksman Rifle",
+  "cls": "Wyborowe (DMR)",
+  "img": "img/T88.webp",
+  "tier": "A"
+ },
+ {
   "name": "U191",
   "full": "U191 Marksman Rifle",
   "cls": "Wyborowe (DMR)",
@@ -288,6 +316,13 @@ window.WEAPONS = [
   "tier": "B"
  },
  {
+  "name": "M24",
+  "full": "M24 Bolt-Action Rifle",
+  "cls": "Snajperki (bolt)",
+  "img": "img/M24.webp",
+  "tier": "S"
+ },
+ {
   "name": "Mosin-Nagant",
   "full": "Mosin-Nagant Bolt-Action Rifle",
   "cls": "Snajperki (bolt)",
@@ -300,6 +335,13 @@ window.WEAPONS = [
   "cls": "Snajperki (bolt)",
   "img": "img/SJ16.webp",
   "tier": "S"
+ },
+ {
+  "name": "Banshee",
+  "full": "Banshee Submachine Gun",
+  "cls": "Pistolety maszynowe",
+  "img": "img/Banshee.webp",
+  "tier": "A"
  },
  {
   "name": "M3A1",
@@ -328,6 +370,13 @@ window.WEAPONS = [
   "cls": "Pistolety maszynowe",
   "img": "img/MP5.webp",
   "tier": "A"
+ },
+ {
+  "name": "MP9",
+  "full": "MP9 Micro SMG",
+  "cls": "Pistolety maszynowe",
+  "img": "img/MP9.webp",
+  "tier": null
  },
  {
   "name": "MPF45",
@@ -502,13 +551,6 @@ window.WEAPONS = [
   "full": "M9A3 Pistol",
   "cls": "Pistolety",
   "img": "img/M9A3.webp",
-  "tier": null
- },
- {
-  "name": "MP9",
-  "full": "MP9 Micro SMG",
-  "cls": "Pistolety maszynowe",
-  "img": "img/MP9.webp",
   "tier": null
  },
  {
