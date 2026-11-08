@@ -95,11 +95,12 @@
   .tiers button.alloff { opacity: .4; }
 
   /* Podglądająca kapibara (w trakcie losowania wychyla się z prawego dolnego rogu) */
-  .stage .peek { position: absolute; right: -10px; bottom: 0; height: 190px; width: auto; pointer-events: none; z-index: 3;
+  .stage .peek { position: absolute; right: -10px; bottom: 0; height: 210px; width: auto; pointer-events: none; z-index: 3; mix-blend-mode: lighten;
     transform: translateY(105%) rotate(8deg); transform-origin: bottom right; transition: transform .6s cubic-bezier(.3,1.4,.5,1);
-    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 55% 60%, #000 55%, transparent 78%); mask-image: radial-gradient(ellipse 60% 70% at 55% 60%, #000 55%, transparent 78%); }
-  .stage.spinning .peek { transform: translateY(18%) rotate(-4deg); animation: peek-bob 1.6s ease-in-out .6s infinite; }
-  @keyframes peek-bob { 0%,100% { transform: translateY(18%) rotate(-4deg); } 50% { transform: translateY(14%) rotate(-7deg); } }
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%), linear-gradient(to right, transparent 0, #000 22%); -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent 0, #000 9%), linear-gradient(to right, transparent 0, #000 22%); mask-composite: intersect; }
+  .stage.spinning .peek { transform: translateY(8%) rotate(-4deg); animation: peek-bob 1.6s ease-in-out .6s infinite; }
+  @keyframes peek-bob { 0%,100% { transform: translateY(8%) rotate(-4deg); } 50% { transform: translateY(4%) rotate(-7deg); } }
 
   /* Deszcz kapibar przy tierze S */
   .capy-rain { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
@@ -179,7 +180,7 @@
       <span class="sound opt"><button id="mute" title="Dźwięk wł./wył. (M)">🔊</button><input type="range" id="vol" min="0" max="100" title="Głośność"></span>
     </div>
     <div class="history" id="history"></div>
-    <img class="peek" src="brand/capy-chill.jpg" alt="" aria-hidden="true">
+    <img class="peek" src="brand/capy-peek.jpg" alt="" aria-hidden="true">
   </section>
 
   <section class="pool">
