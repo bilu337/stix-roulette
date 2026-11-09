@@ -636,7 +636,7 @@
   ];
   const LO_CATS = ['ammo', 'map', 'mode', 'armor', 'helmet', 'rig', 'backpack', 'challenge'];
   const RAID_CATS = LO_CATS.filter(c => c !== 'ammo');
-  const ORDER = ['mode', 'map', 'rig', 'armor', 'helmet', 'backpack', 'ammo', 'challenge']; // kolejność liczenia (zależności)
+  const ORDER = ['map', 'mode', 'rig', 'armor', 'helmet', 'backpack', 'ammo', 'challenge']; // kolejność liczenia (zależności)
   const LO_LABEL = { map: 'Mapa', mode: 'Tryb', ammo: 'Amunicja', armor: 'Pancerz', helmet: 'Hełm', rig: 'Kamizelka', backpack: 'Plecak', challenge: 'Wyzwanie' };
   const NONE = { armor: 'Bez pancerza', helmet: 'Bez hełmu', backpack: 'Bez plecaka', rig: 'Bez kamizelki' };
   const DEF_OFF = { armor: ['0'], helmet: ['0'], backpack: ['0'], rig: ['0'], mode: ['Zombie Endless'] };
@@ -719,14 +719,17 @@
 
   function pick(cat) {
     const c = cap();
-    if (cat === 'map') { // mapa pasująca do wylosowanego trybu
+    if (cat === 'map') { // najpierw mapa (równe szanse), tryb losowany potem na tej mapie
       const md = lo.on.mode && lo.res.mode && lo.res.mode.n;
       const fits = m => !md || m.modes.includes(md);
-      let ms = L.maps.filter(m => !offHas('map', m.name) && fits(m));
+      // bez trybu: każda mapa z równą szansą, o ile ma choć jeden dozwolony tryb z wagą > 0
+      const playable = m => md || !lo.on.mode || m.modes.some(x => !offHas('mode', x) && (MODE_GRP[x] === 'E' || +lo.diffW[MODE_GRP[x]] > 0));
+      let ms = L.maps.filter(m => !offHas('map', m.name) && fits(m) && playable(m));
+      if (!ms.length) ms = L.maps.filter(m => !offHas('map', m.name) && fits(m));
       if (!ms.length) ms = L.maps.filter(fits);
       return ms.length ? { n: rnd(ms).name } : null;
     }
-    if (cat === 'mode') { // najpierw poziom trudności (wagi z ustawień), potem konkretny tryb
+    if (cat === 'mode') { // tryb na wylosowanej mapie, wagi poziomów trudności z ustawień
       const m = curMap();
       const avail = m ? m.modes : allModes.filter(x => !lo.on.map || L.maps.some(mp => !offHas('map', mp.name) && mp.modes.includes(x)));
       let ms = avail.filter(x => !offHas('mode', x));
