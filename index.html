@@ -195,9 +195,6 @@
   .raid-roll { background: transparent; border: 2px solid var(--peach); color: var(--peach); font-size: 17px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 8px 26px; box-shadow: 0 0 14px rgba(255,128,48,.3); }
   .raid-roll:hover { background: var(--peach); color: #1a0f08; }
   .raid-roll:disabled { opacity: .45; cursor: default; }
-  .budget { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 13px; }
-  .budget button { padding: 4px 10px; font-size: 13px; }
-  .budget button.on { background: var(--peach); color: #1a0f08; border-color: var(--peach); }
   .diffw { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; margin-top: 10px; max-width: 520px; font-size: 13px; color: var(--muted); }
   .diffw input { accent-color: var(--peach); width: 100%; }
   body.obs .raid:not(.open) { display: none; }
@@ -300,7 +297,7 @@
     <div class="raid" id="raid">
       <button class="raid-toggle" id="raidToggle" aria-expanded="false"><span class="chev">▸</span> 🎲 Rajd w ciemno <span class="raid-sub">dolosuj mapę, tryb, sprzęt i wyzwanie</span></button>
       <div class="raid-body" id="raidBody" hidden>
-        <div class="raid-actions"><button class="raid-roll" id="rollRaid" title="Klawisz R">Losuj rajd</button><span class="budget" id="budget" title="Budżet sprzętu: przesuwa szanse w stronę tańszych lub droższych klas (pancerz, hełm, kamizelka, plecak, amunicja)"></span><span class="count">klik w slot = przelosuj tylko go · 🔓 = zablokuj</span></div>
+        <div class="raid-actions"><button class="raid-roll" id="rollRaid" title="Klawisz R">Losuj rajd</button><span class="count">klik w slot = przelosuj tylko go · 🔓 = zablokuj</span></div>
         <div class="loadout" id="loadout"></div>
       </div>
     </div>
@@ -643,7 +640,8 @@
   const LO_LABEL = { map: 'Mapa', mode: 'Tryb', ammo: 'Amunicja', armor: 'Pancerz', helmet: 'Hełm', rig: 'Kamizelka', backpack: 'Plecak', challenge: 'Wyzwanie' };
   const NONE = { armor: 'Bez pancerza', helmet: 'Bez hełmu', backpack: 'Bez plecaka', rig: 'Bez kamizelki' };
   const DEF_OFF = { armor: ['0'], helmet: ['0'], backpack: ['0'], rig: ['0'], mode: ['Zombie Endless'] };
-  const lo = Object.assign({ on: {}, off: {}, rules: true, chance: 50, challenges: null, res: {}, locks: {}, budget: 'mid' }, state.lo || {});
+  const lo = Object.assign({ on: {}, off: {}, rules: true, chance: 50, challenges: null, res: {}, locks: {} }, state.lo || {});
+  delete lo.budget;
   lo.diffW = Object.assign({ N: 45, L: 35, F: 20 }, lo.diffW || {});
   LO_CATS.forEach(c => {
     if (typeof lo.on[c] !== 'boolean') lo.on[c] = true;
@@ -679,19 +677,20 @@
   // poziom trudności trybu: N = Normal, L = Lockdown/Infected, F = Forbidden/Heavy Infected, E = Endless
   const MODE_GRP = { 'Normal': 'N', 'Lockdown': 'L', 'Infected Zone': 'L', 'Forbidden': 'F', 'Heavy Infected Zone': 'F', 'Zombie Endless': 'E' };
   // budżet: waga dla poziomu/klasy 0–7 (pancerz, hełm, rig, plecak, amunicja)
+  // każdy rajd losuje po cichu budżet: tani / średni / bogaty (po 1/3)
   const BUDGETS = {
-    low:  { label: 'tani',   w: [3, 4, 4, 3, 1.2, .5, .2, .1] },
-    mid:  { label: 'średni', w: [1, 2, 3.5, 4, 3, 1.3, .6, .3] },
-    high: { label: 'bogaty', w: [.2, .4, 1, 2, 4, 4, 3, 2] },
-    flat: { label: 'równo',  w: [1, 1, 1, 1, 1, 1, 1, 1] },
+    low:  [3, 4, 4, 3, 1.2, .5, .2, .1],
+    mid:  [1, 2, 3.5, 4, 3, 1.3, .6, .3],
+    high: [.2, .4, 1, 2, 4, 4, 3, 2],
   };
+  let budget = 'mid';
   // sh > 0 przesuwa szczyt rozkładu w stronę lepszych klas, sh < 0 w stronę gorszych (interpolacja tabeli wag)
-  const bw = (lv, sh = 0) => { const w = (BUDGETS[lo.budget] || BUDGETS.mid).w, x = Math.max(0, Math.min(7, lv - sh)), i = Math.floor(x), f = x - i;
+  const bw = (lv, sh = 0) => { const w = BUDGETS[budget], x = Math.max(0, Math.min(7, lv - sh)), i = Math.floor(x), f = x - i;
     return w[i] * (1 - f) + (w[Math.min(7, i + 1)] || w[i]) * f; };
   // „w co poszła kasa”: na każdy rajd pancerz↔hełm i kamizelka↔plecak dostają przeciwne przesunięcia (albo zbalansowane)
   let skew = {};
   const rollSkew = () => { const one = () => { const r = Math.random(); return r < .5 ? 0 : r < .75 ? 1.6 : -1.6; };
-    const a = one(), b = one(); skew = { armor: a, helmet: -a, rig: b, backpack: -b }; };
+    const a = one(), b = one(); skew = { armor: a, helmet: -a, rig: b, backpack: -b }; budget = rnd(Object.keys(BUDGETS)); };
   const tierLv = (cat, t) => String(t.tier) === '0' ? 0 : (cat === 'armor' || cat === 'helmet') ? +t.tier : t.tier === 'A' ? 4 : SIZE_LV[t.tier] || 0;
   const offHas = (c, id) => lo.off[c].includes(String(id));
   const cap = () => lo.rules && lo.on.mode && lo.res.mode ? (MODE_CAP[lo.res.mode.n] || 99) : 99;
@@ -956,15 +955,7 @@
   }
   $('raidToggle').onclick = () => { setRaidOpen(!lo.open); SFX.click(lo.open); };
   $('rollRaid').onclick = rollRaid;
-  function renderBudget() {
-    const el = $('budget'); el.innerHTML = 'budżet:';
-    Object.entries(BUDGETS).forEach(([k, b]) => {
-      const bt = document.createElement('button'); bt.textContent = b.label; bt.classList.toggle('on', lo.budget === k);
-      bt.onclick = () => { lo.budget = k; save(); SFX.click(true); renderBudget(); };
-      el.append(bt);
-    });
-  }
-  renderBudget();
+
 
   function renderLoSet() {
     const box = $('loSet'); box.innerHTML = '';
