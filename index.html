@@ -35,7 +35,7 @@
   .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 40px; }
 
   /* Scena */
-  .stage { background: radial-gradient(ellipse at center, #222 0%, #111 75%); border: 1px solid var(--line); border-radius: 16px; padding: 24px; text-align: center; position: relative; overflow: hidden; }
+  .stage { background: radial-gradient(ellipse at center, #222 0%, #111 75%); border: 1px solid var(--line); border-radius: 16px; padding: 24px; text-align: center; position: relative; overflow: hidden; overflow: clip; }
   .stage::before { content: ""; position: absolute; inset: 0; background: var(--paper); background-size: 500px; opacity: .10; pointer-events: none; }
   .stage > * { position: relative; }
   .stage.win { border-color: var(--peach); box-shadow: 0 0 0 1px var(--peach), 0 0 50px rgba(255,128,48,.3); }
@@ -138,6 +138,121 @@
   .card.used:hover::after { content: "🔓 odblokuj"; }
   .card.hit { border-color: var(--peach); box-shadow: 0 0 0 1px var(--peach), 0 0 14px rgba(255,128,48,.45); }
 
+  /* Zestaw (mapa, tryb, amunicja, sprzęt, wyzwanie) */
+  .g0 { --tc: #5a5a5a; } .g1 { --tc: #9ca3af; } .g2 { --tc: #4ade80; } .g3 { --tc: #60a5fa; }
+  .g4 { --tc: #c084fc; } .g5 { --tc: #fbbf24; } .g6 { --tc: #ff5c5c; } .g7 { --tc: #ff3d81; } .gm { --tc: var(--peach); }
+  .loadout { --tc: #3a3a3a; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-flow: row dense; gap: 10px; margin-top: 12px; text-align: left; }
+  .slot { position: relative; min-height: 168px; background: linear-gradient(to top, color-mix(in srgb, var(--tc) 22%, transparent), transparent 60%), rgba(18,18,18,.92);
+    border: 1px solid color-mix(in srgb, var(--tc) 60%, var(--line)); box-shadow: inset 0 -3px 0 var(--tc); border-radius: 12px; padding: 10px; cursor: pointer;
+    display: flex; flex-direction: column; overflow: hidden; transition: border-color .25s, box-shadow .25s, transform .25s; user-select: none; }
+  .slot:hover { border-color: var(--peach); }
+  .slot .sl-label { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .slot .sl-img { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 72px; margin: 4px 0; font-size: 44px; line-height: 1; }
+  .slot .sl-img img { max-width: 100%; max-height: 78px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.6)); }
+  .slot .sl-name { font-weight: 600; font-size: 15px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .slot .sl-sub { margin-top: 5px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 12px; min-height: 20px; }
+  .slot .sl-sub .tb { background: var(--tc); }
+  .slot .lock { position: absolute; top: 6px; right: 6px; padding: 1px 6px; font-size: 13px; border-radius: 7px; background: rgba(0,0,0,.45); opacity: .55; z-index: 2; }
+  .slot .lock:hover, .slot.locked .lock { opacity: 1; }
+  .slot.locked { border-style: dashed; }
+  .slot.empty .sl-name { color: var(--muted); }
+  .slot.empty .sl-img { font-size: 40px; color: #3a3a3a; font-weight: 700; }
+  .slot.rolling { box-shadow: inset 0 -3px 0 var(--tc), 0 0 0 1px var(--peach); }
+  .slot.rolling .sl-img img { filter: blur(1px) brightness(.8); }
+  .slot.reveal { animation: slot-pop .45s cubic-bezier(.3,1.6,.5,1); box-shadow: inset 0 -3px 0 var(--tc), 0 0 0 1px var(--tc), 0 0 26px color-mix(in srgb, var(--tc) 55%, transparent); }
+  @keyframes slot-pop { 0% { transform: scale(.94); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  .slot.map { grid-column: span 2; grid-row: span 2; background-size: cover; background-position: center; }
+  .slot.map::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,8,.95) 10%, rgba(8,8,8,.2) 60%, rgba(8,8,8,.8)); }
+  .slot.map > :not(.lock) { position: relative; }
+  .slot.map .sl-img { visibility: hidden; }
+  .slot.map .sl-name { font-size: 34px; text-transform: uppercase; letter-spacing: .06em; color: var(--peach); text-shadow: 0 0 10px var(--glow); }
+  .slot.challenge .sl-img { flex: 0 0 auto; min-height: 44px; font-size: 34px; }
+  .slot.challenge .sl-name { font-size: 14px; -webkit-line-clamp: 4; }
+  .ammo-pick { --tc: #3a3a3a; display: flex; width: fit-content; align-items: center; gap: 10px; margin: 12px auto 0; padding: 6px 12px 6px 8px; border-radius: 12px; cursor: pointer; user-select: none;
+    background: linear-gradient(to right, color-mix(in srgb, var(--tc) 25%, transparent), rgba(18,18,18,.9)); border: 1px solid color-mix(in srgb, var(--tc) 70%, var(--line)); box-shadow: inset 3px 0 0 var(--tc); transition: transform .2s; }
+  .ammo-pick:hover { border-color: var(--peach); }
+  .ammo-roll { display: block; margin: 14px auto 0; background: transparent; border: 2px solid var(--peach); color: var(--peach); font-size: 16px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 8px 24px; box-shadow: 0 0 14px rgba(255,128,48,.35); animation: ammo-pulse 1.6s ease-in-out infinite; }
+  .ammo-roll:hover { background: var(--peach); color: #1a0f08; }
+  .ammo-roll:disabled { opacity: .45; cursor: default; animation: none; }
+  @keyframes ammo-pulse { 50% { box-shadow: 0 0 26px rgba(255,128,48,.7); } }
+  .ammo-pick .sl-img img { height: 44px; width: 60px; object-fit: contain; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,.6)); }
+  .ammo-pick .sl-label { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; text-align: left; }
+  .ammo-pick .sl-name { font-weight: 700; font-size: 18px; text-align: left; line-height: 1.1; }
+  .ammo-pick .sl-sub { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+  .ammo-pick .sl-sub .tb { background: var(--tc); }
+  .ammo-pick .lock { padding: 1px 6px; font-size: 13px; border-radius: 7px; background: rgba(0,0,0,.45); opacity: .55; }
+  .ammo-pick .lock:hover, .ammo-pick.locked .lock { opacity: 1; }
+  .ammo-pick.locked { border-style: dashed; }
+  .ammo-pick.reveal { animation: slot-pop .45s cubic-bezier(.3,1.6,.5,1); box-shadow: inset 3px 0 0 var(--tc), 0 0 22px color-mix(in srgb, var(--tc) 55%, transparent); }
+  .raid { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; text-align: left; }
+  .raid-toggle { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; border: 1px dashed var(--line); padding: 10px 14px; font-size: 17px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--peach); }
+  .raid-toggle:hover { border-color: var(--peach); }
+  .raid-toggle .chev { display: inline-block; transition: transform .2s; }
+  .raid.open .raid-toggle .chev { transform: rotate(90deg); }
+  .raid.open .raid-toggle { border-style: solid; border-color: color-mix(in srgb, var(--peach) 45%, var(--line)); }
+  .raid-sub { font-size: 12px; font-weight: 500; letter-spacing: .04em; text-transform: none; color: var(--muted); }
+  .raid-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 0; }
+  .raid-roll { background: transparent; border: 2px solid var(--peach); color: var(--peach); font-size: 17px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 8px 26px; box-shadow: 0 0 14px rgba(255,128,48,.3); }
+  .raid-roll:hover { background: var(--peach); color: #1a0f08; }
+  .raid-roll:disabled { opacity: .45; cursor: default; }
+  .budget { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 13px; }
+  .budget button { padding: 4px 10px; font-size: 13px; }
+  .budget button.on { background: var(--peach); color: #1a0f08; border-color: var(--peach); }
+  .diffw { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center; margin-top: 10px; max-width: 520px; font-size: 13px; color: var(--muted); }
+  .diffw input { accent-color: var(--peach); width: 100%; }
+  body.obs .raid:not(.open) { display: none; }
+  body.obs .raid-toggle, body.obs .raid-actions { display: none; }
+  .minireel { max-width: 780px; margin: 12px auto 0; transition: opacity .35s, transform .35s; }
+  .minireel.out { opacity: 0; transform: translateY(-8px); }
+  .minireel .mr-label { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--peach); opacity: .8; margin-bottom: 6px; }
+  .minireel .reel { height: 150px; }
+  .minireel .strip { gap: 8px; }
+  .minireel .ri { flex: 0 0 120px; height: 138px; padding: 6px; border-color: color-mix(in srgb, var(--tc) 70%, var(--line));
+    background: linear-gradient(to top, color-mix(in srgb, var(--tc) 28%, transparent), transparent 55%), rgba(20,20,20,.92); box-shadow: inset 0 -3px 0 var(--tc); }
+  .minireel .ri img { height: 68px; }
+  .minireel .ri .n { font-size: 13px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .minireel .ri .tb { top: 5px; left: 5px; font-size: 10px; height: 17px; background: var(--tc); }
+  .minireel .ri.win { transform: scale(1.08); }
+  .lo-set { display: flex; flex-direction: column; gap: 10px; }
+  .lo-cat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .lo-cat-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .lo-cat-head strong { text-transform: uppercase; letter-spacing: .1em; font-size: 14px; color: var(--peach); }
+  .lo-cat-head .count { margin-left: auto; }
+  .lo-cat.disabled .chips { opacity: .35; pointer-events: none; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips button { padding: 4px 10px; font-size: 13px; display: inline-flex; gap: 6px; align-items: center; border-color: color-mix(in srgb, var(--tc, var(--line)) 70%, var(--line)); }
+  .chips button .tb { background: var(--tc); }
+  .chips button.offc { opacity: .35; text-decoration: line-through; }
+  .lo-cat textarea { width: 100%; min-height: 220px; background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px; font: 13px/1.5 inherit; font-family: inherit; resize: vertical; }
+  .lo-cat input[type=range] { accent-color: var(--peach); vertical-align: middle; }
+  @media (max-width: 900px) { .loadout { grid-template-columns: repeat(3, 1fr); } .slot.map { grid-row: span 1; } }
+  @media (max-width: 600px) { .loadout { grid-template-columns: repeat(2, 1fr); } .slot.map { grid-column: 1 / -1; } }
+
+  /* Zakładki */
+  [hidden] { display: none !important; }
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tabs .tab { font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 2px 8px 4px; color: var(--muted); }
+  .tabs .tab:hover { color: var(--peach2); }
+  .tabs .tab.active { color: var(--peach); border-bottom-color: var(--peach); text-shadow: 0 0 6px var(--glow), 0 0 18px rgba(255,128,48,.45); }
+
+  /* Edytor tierów */
+  .tl { display: flex; flex-direction: column; gap: 6px; }
+  .tl-row { display: flex; min-height: 72px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+  .tl-row.over, .tl.picking .tl-row:hover { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc), 0 0 16px color-mix(in srgb, var(--tc) 40%, transparent); }
+  .tl.picking .tl-row { cursor: pointer; }
+  .tl-label { flex: 0 0 64px; display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tc) 20%, transparent); border-right: 3px solid var(--tc); color: var(--muted); font-size: 11px; }
+  .tl-label .tb { font-size: 20px; height: 34px; min-width: 34px; }
+  .tl-items { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; align-content: flex-start; }
+  .tl-empty { color: var(--muted); font-size: 12px; align-self: center; padding: 0 6px; }
+  .chip { display: flex; flex-direction: column; align-items: center; width: 92px; padding: 4px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: grab; user-select: none; position: relative; }
+  .chip img { width: 100%; height: 34px; object-fit: contain; pointer-events: none; }
+  .chip span { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .chip:hover { border-color: var(--peach); }
+  .chip.sel { border-color: var(--peach); box-shadow: 0 0 0 2px var(--peach), 0 0 14px var(--glow); }
+  .chip.changed::after { content: ""; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--peach); box-shadow: 0 0 6px var(--glow); }
+  .tl-foot { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  @media (max-width: 600px) { .chip { width: 76px; } .tl-label { flex-basis: 48px; } }
+
   footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 30px; }
   footer a { color: var(--muted); }
   footer .capy { color: var(--peach); font-weight: 600; font-size: 14px; display: block; margin-bottom: 6px; }
@@ -174,10 +289,20 @@
     <div class="imgbox" id="imgbox"><div class="placeholder"><img src="brand/capy-chill.jpg" alt=""><span>Kliknij LOSUJ albo wciśnij spację</span></div></div>
     <div class="name" id="name"></div>
     <div class="cls" id="cls"></div>
+    <div class="minireel" id="ammoReel" hidden></div>
+    <div class="ammo-pick" id="ammoPick" hidden></div>
+    <button class="ammo-roll" id="rollAmmo" title="Klawisz A" hidden>🎯 Losuj ammo</button>
     <div class="controls">
       <button class="big" id="roll">Losuj</button>
       <label class="chk opt"><input type="checkbox" id="noRepeat"> bez powtórzeń</label>
       <span class="sound opt"><button id="mute" title="Dźwięk wł./wył. (M)">🔊</button><input type="range" id="vol" min="0" max="100" title="Głośność"></span>
+    </div>
+    <div class="raid" id="raid">
+      <button class="raid-toggle" id="raidToggle" aria-expanded="false"><span class="chev">▸</span> 🎲 Rajd w ciemno <span class="raid-sub">dolosuj mapę, tryb, sprzęt i wyzwanie</span></button>
+      <div class="raid-body" id="raidBody" hidden>
+        <div class="raid-actions"><button class="raid-roll" id="rollRaid" title="Klawisz R">Losuj rajd</button><span class="budget" id="budget" title="Budżet sprzętu: przesuwa szanse w stronę tańszych lub droższych klas (pancerz, hełm, kamizelka, plecak, amunicja)"></span><span class="count">klik w slot = przelosuj tylko go · 🔓 = zablokuj</span></div>
+        <div class="loadout" id="loadout"></div>
+      </div>
     </div>
     <div class="history" id="history"></div>
     <img class="peek" src="brand/capy-peek.jpg" alt="" aria-hidden="true">
@@ -185,22 +310,41 @@
 
   <section class="pool">
     <div class="pool-head">
-      <h2 class="neon">Pula broni</h2>
-      <div class="btns">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="pool">Pula broni</button>
+        <button class="tab" role="tab" data-tab="tierlist">Tiery</button>
+        <button class="tab" role="tab" data-tab="loadoutset">Dodatki</button>
+      </div>
+      <div class="btns" data-for="pool">
         <button id="allOn">Włącz wszystkie</button>
         <button id="allOff">Wyłącz wszystkie</button>
         <button id="resetUsed">Odblokuj wylosowane</button>
       </div>
     </div>
-    <p class="hint">Kliknij broń, żeby wyłączyć ją z losowania (albo włączyć z powrotem). Przy „bez powtórzeń” wylosowana broń dostaje 🔒 — klik ją odblokowuje. Ustawienia zapisują się w przeglądarce.</p>
-    <div class="tiers" id="tiers">Tier (klik = wł./wył. cały tier):</div>
-    <div id="cats"></div>
+    <div id="tab-pool">
+      <p class="hint">Kliknij broń, żeby wyłączyć ją z losowania (albo włączyć z powrotem). Przy „bez powtórzeń” wylosowana broń dostaje 🔒 — klik ją odblokowuje. Ustawienia zapisują się w przeglądarce.</p>
+      <div class="tiers" id="tiers"></div>
+      <div id="cats"></div>
+    </div>
+    <div id="tab-tierlist" hidden>
+      <p class="hint">Ustaw, która broń jest w jakim tierze: przeciągnij ją do innego rzędu albo kliknij broń, a potem rząd. Tier decyduje o kolorze, dźwięku po wylosowaniu i deszczu kapibar (S). Kropka = zmienione względem domyślnej listy. Zapisuje się tylko w tej przeglądarce.</p>
+      <div class="tl" id="tl"></div>
+      <div class="tl-foot">
+        <button id="tierReset">Przywróć domyślne tiery</button>
+        <span class="count" id="tierChanged"></span>
+      </div>
+    </div>
+    <div id="tab-loadoutset" hidden>
+      <p class="hint">Amunicja losuje się małą ruletką zaraz po broni i zawsze pasuje do jej kalibru (klik w nabój pod bronią = przelosuj). Resztę losuje panel „🎲 Rajd w ciemno” pod bronią. Odznacz całą kategorię albo kliknij opcję, żeby ją wykluczyć. Zapisuje się w tej przeglądarce.</p>
+      <div class="lo-set" id="loSet"></div>
+    </div>
   </section>
 
-  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA, i <a href="https://bloxodes.com/wiki/arena-breakout-infinite/weapons" target="_blank" rel="noopener">Bloxodes</a>. Grafiki broni: Bloxodes (render z gry, © MoreFun Studios). Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, tiery pozostałych broni to szacunek z recenzji i starszych list (szczegóły w dymku na karcie broni). Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
+  <footer><span class="capy">Capybarownia · <a href="https://www.twitch.tv/stix" target="_blank" rel="noopener" style="color:inherit">twitch.tv/stix</a></span>Lista broni: <a href="https://arena-breakout-infinite.fandom.com/" target="_blank" rel="noopener">Arena Breakout Infinite Wiki (Fandom)</a>, CC BY-SA, i <a href="https://bloxodes.com/wiki/arena-breakout-infinite/weapons" target="_blank" rel="noopener">Bloxodes</a>. Grafiki broni: Bloxodes (render z gry, © MoreFun Studios). Tiery: <a href="https://www.topuplive.com/news/abi-season7-weapon-tier-list.html" target="_blank" rel="noopener">Season 7 tier list (TOPUPLive, 17.09.2026)</a>, tiery pozostałych broni to szacunek z recenzji i starszych list (szczegóły w dymku na karcie broni); każdy może je zmienić u siebie w zakładce „Tiery”. Zestaw: mapy i tryby z notek sezonu 7 (Steam), amunicja i sprzęt z <a href="https://bloxodes.com/wiki/arena-breakout-infinite/ammo" target="_blank" rel="noopener">Bloxodes</a> i Arena Breakout Infinite Wiki (CC BY-SA); grafiki map, nabojów i sprzętu © MoreFun Studios. Fanowskie narzędzie, niezwiązane z MoreFun Studios.</footer>
 </div>
 
 <script src="weapons.js"></script>
+<script src="loadout.js"></script>
 <script>
 (() => {
   const W = window.WEAPONS;
@@ -209,8 +353,9 @@
   if (new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
   // --- stan (localStorage tylko jako wygoda; bez niego też działa) ---
-  let state = { off: [], used: [], history: [], noRepeat: false, muted: false, vol: 70 };
+  let state = { off: [], used: [], history: [], noRepeat: false, muted: false, vol: 70, tiers: {}, tab: 'pool' };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  if (!state.tiers || typeof state.tiers !== 'object') state.tiers = {};
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
   const off = new Set(state.off), used = new Set(state.used);
   const persist = () => { state.off = [...off]; state.used = [...used]; save(); };
@@ -266,6 +411,10 @@
         } else arp(t, [494, 659], .1, { type: 'triangle', vol: .18, dur: .4 });
       }),
       click: (on) => go(t => tone(on ? 880 : 520, t, .06, { type: 'triangle', vol: .12 })),
+      reveal: (lv) => go(t => { // odsłonięcie slotu zestawu: wyżej i jaśniej dla lepszych rzeczy
+        const f = 330 * Math.pow(1.122, lv * 2);
+        tone(f, t, .18, { type: 'triangle', vol: .15 }); tone(f * 1.5, t + .06, .22, { type: 'sine', vol: .09 });
+        if (lv >= 5) noise(t, .3, { vol: .06, from: 5000, to: 9000, q: .6 }); }),
       lock: () => go(t => { tone(1500, t, .05, { type: 'square', vol: .05 }); tone(1100, t + .05, .08, { type: 'square', vol: .05 }); }),
       setVol: () => { if (ctx) master.gain.value = state.muted ? 0 : (state.vol / 100) * 0.6; },
     };
@@ -283,8 +432,20 @@
 
   // --- tiery ---
   const TIERS = ['S', 'A', 'B', 'C', 'D', 'X'];
-  const tcls = w => 't-' + (w.tier || 'X');
-  const tname = w => (w.tier ? 'tier ' + w.tier : 'brak oceny') + (w.tierNote ? ' (' + w.tierNote + ')' : '');
+  // domyślny tier z weapons.js + własne ustawienia z przeglądarki (state.tiers: nazwa → tier, tylko różnice)
+  const DEF = {};
+  W.forEach(w => {
+    DEF[w.name] = w.tier || 'X';
+    const t = state.tiers[w.name];
+    if (!TIERS.includes(t) || t === DEF[w.name]) { delete state.tiers[w.name]; return; }
+    w.tier = t === 'X' ? undefined : t;
+  });
+  const tierOf = w => w.tier || 'X';
+  const changed = w => tierOf(w) !== DEF[w.name];
+  const tlabel = t => t === 'X' ? 'brak oceny' : 'tier ' + t;
+  const tcls = w => 't-' + tierOf(w);
+  const tname = w => changed(w) ? tlabel(tierOf(w)) + ' (Twoje ustawienie; domyślnie ' + tlabel(DEF[w.name]) + ')'
+    : tlabel(tierOf(w)) + (w.tierNote ? ' (' + w.tierNote + ')' : '');
   function badge(w) { const b = document.createElement('span'); b.className = 'tb'; b.textContent = w.tier || '?'; return b; }
   function setLabel(w) {
     const el = $('cls'); el.innerHTML = ''; el.className = 'cls ' + tcls(w);
@@ -325,17 +486,89 @@
     sec.append(t, g); catsEl.append(sec);
   }
 
-  const tierBtns = {};
-  TIERS.forEach(t => {
-    const list = W.filter(w => (w.tier || 'X') === t);
-    if (!list.length) return;
-    const b = document.createElement('button'); b.className = 't-' + t;
-    const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = t === 'X' ? '?' : t;
-    b.append(bd, document.createTextNode(`(${list.length})`));
-    b.title = t === 'X' ? 'bronie bez oceny' : 'tier ' + t;
-    b.onclick = () => { const anyOn = list.some(w => !off.has(w.name)); list.forEach(w => anyOn ? off.add(w.name) : off.delete(w.name)); SFX.click(!anyOn); refresh(); };
-    tierBtns[t] = { b, list }; $('tiers').append(b);
-  });
+  let tierBtns = {};
+  function renderTierBtns() {
+    const el = $('tiers'); el.textContent = 'Tier (klik = wł./wył. cały tier):'; tierBtns = {};
+    TIERS.forEach(t => {
+      const list = W.filter(w => tierOf(w) === t);
+      if (!list.length) return;
+      const b = document.createElement('button'); b.className = 't-' + t;
+      const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = t === 'X' ? '?' : t;
+      b.append(bd, document.createTextNode(`(${list.length})`));
+      b.title = t === 'X' ? 'bronie bez oceny' : 'tier ' + t;
+      b.onclick = () => { const anyOn = list.some(w => !off.has(w.name)); list.forEach(w => anyOn ? off.add(w.name) : off.delete(w.name)); SFX.click(!anyOn); refresh(); };
+      tierBtns[t] = { b, list }; el.append(b);
+    });
+  }
+  renderTierBtns();
+
+  // --- zakładka „Tiery”: własny podział broni na tiery ---
+  const byName = n => W.find(w => w.name === n);
+  let picked = null; // broń wybrana kliknięciem, czeka na klik w rząd
+  function paintCard(w) {
+    const c = cards.get(w.name); if (!c) return;
+    TIERS.forEach(t => c.classList.remove('t-' + t)); c.classList.add(tcls(w));
+    c.querySelector('.tb').textContent = w.tier || '?'; c.title = w.full + ' — ' + tname(w);
+  }
+  function setTier(w, t) {
+    if (!w || tierOf(w) === t) return;
+    w.tier = t === 'X' ? undefined : t;
+    if (t === DEF[w.name]) delete state.tiers[w.name]; else state.tiers[w.name] = t;
+    save(); SFX.click(true);
+    paintCard(w); renderTierBtns(); renderTL(); refresh();
+    if (!spinning && state.history[0] === w.name) setLabel(w);
+  }
+  function renderTL() {
+    const tl = $('tl'); tl.innerHTML = ''; tl.classList.toggle('picking', !!picked);
+    TIERS.forEach(t => {
+      const row = document.createElement('div'); row.className = 'tl-row t-' + t;
+      const lab = document.createElement('div'); lab.className = 'tl-label';
+      const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = t === 'X' ? '?' : t;
+      const list = W.filter(w => tierOf(w) === t);
+      lab.append(bd, document.createTextNode(list.length));
+      lab.title = t === 'X' ? 'bez oceny' : 'tier ' + t;
+      const items = document.createElement('div'); items.className = 'tl-items';
+      list.forEach(w => {
+        const ch = document.createElement('div'); ch.className = 'chip' + (changed(w) ? ' changed' : '') + (picked === w.name ? ' sel' : '');
+        ch.draggable = true; ch.title = w.full + ' — ' + tname(w);
+        if (w.img) { const im = document.createElement('img'); im.src = w.img; im.alt = ''; ch.append(im); }
+        const n = document.createElement('span'); n.textContent = w.name; ch.append(n);
+        ch.ondragstart = e => { e.dataTransfer.setData('text/plain', w.name); e.dataTransfer.effectAllowed = 'move'; };
+        ch.onclick = e => { e.stopPropagation(); picked = picked === w.name ? null : w.name; renderTL(); };
+        items.append(ch);
+      });
+      if (!list.length) { const e = document.createElement('span'); e.className = 'tl-empty'; e.textContent = 'pusto — upuść tu broń'; items.append(e); }
+      row.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('over'); };
+      row.ondragleave = e => { if (!row.contains(e.relatedTarget)) row.classList.remove('over'); };
+      row.ondrop = e => { e.preventDefault(); row.classList.remove('over'); picked = null; setTier(byName(e.dataTransfer.getData('text/plain')), t); renderTL(); };
+      row.onclick = () => { if (!picked) return; const w = byName(picked); picked = null; setTier(w, t); renderTL(); };
+      row.append(lab, items); tl.append(row);
+    });
+    const n = Object.keys(state.tiers).length;
+    $('tierChanged').textContent = n ? `zmienione: ${n}` : 'domyślna lista tierów';
+    $('tierReset').disabled = !n;
+  }
+  $('tierReset').onclick = () => {
+    if (!confirm('Przywrócić domyślne tiery dla wszystkich broni?')) return;
+    state.tiers = {}; picked = null;
+    W.forEach(w => { w.tier = DEF[w.name] === 'X' ? undefined : DEF[w.name]; paintCard(w); });
+    save(); renderTierBtns(); renderTL(); refresh();
+    if (!spinning && state.history[0]) { const w = byName(state.history[0]); if (w) setLabel(w); }
+  };
+  document.addEventListener('keydown', e => { if (e.code === 'Escape' && picked) { picked = null; renderTL(); } });
+
+  // --- przełączanie zakładek ---
+  function setTab(tab) {
+    if (!['pool', 'tierlist', 'loadoutset'].includes(tab)) tab = 'pool';
+    state.tab = tab; save();
+    document.querySelectorAll('.tabs .tab').forEach(b => { const on = b.dataset.tab === tab; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+    $('tab-pool').hidden = tab !== 'pool'; $('tab-tierlist').hidden = tab !== 'tierlist'; $('tab-loadoutset').hidden = tab !== 'loadoutset';
+    if (tab === 'loadoutset') renderLoSet();
+    document.querySelector('.pool-head .btns').hidden = tab !== 'pool';
+    if (tab !== 'tierlist' && picked) picked = null;
+    if (tab === 'tierlist') renderTL();
+  }
+  document.querySelectorAll('.tabs .tab').forEach(b => b.onclick = () => setTab(b.dataset.tab));
 
   $('allOn').onclick = () => { off.clear(); refresh(); };
   $('allOff').onclick = () => { W.forEach(w => off.add(w.name)); refresh(); };
@@ -347,6 +580,7 @@
     const active = W.length - off.size, p = pool().length;
     $('count').textContent = `w puli: ${p} / ${W.length}` + (state.noRepeat && used.size ? ` (zablokowane po losowaniu: ${used.size})` : '') + (active === 0 ? ' — włącz jakąś broń' : '');
     $('roll').disabled = spinning || active === 0;
+    if ($('rollRaid')) $('rollRaid').disabled = spinning;
   }
   function refresh() {
     cards.forEach((c, name) => {
@@ -384,6 +618,430 @@
     setTimeout(() => box.remove(), 6000);
   }
 
+  // --- zestaw: mapa, tryb, amunicja, sprzęt, wyzwanie (dane w loadout.js) ---
+  const L = window.LOADOUT || null;
+  const DEFAULT_CHALLENGES = [
+    'Tylko celowniki mechaniczne — zero optyki',
+    'Bez apteczek z magazynu — leczysz się tym, co znajdziesz',
+    'Bez słuchawek',
+    'Strzelasz tylko z biodra',
+    'Lootujesz tylko to, co wypadnie z wrogów',
+    'Ewakuacja w max 15 minut',
+    'Idziesz na bossa mapy (zabić albo zginąć próbując)',
+    'W budynkach tylko chodzisz — zero biegania',
+    'Bez granatów',
+    'Pierwsza znaleziona broń zastępuje Twoją',
+    'Tryb kapibary: cały rajd w kucki',
+    'Ewakuacja najdalszym wyjściem',
+    'Bez ewakuacji przed 3 killami',
+    'Pistolet do pierwszego killa, dopiero potem broń główna',
+    'Czat decyduje o każdym skrzyżowaniu',
+  ];
+  const LO_CATS = ['ammo', 'map', 'mode', 'armor', 'helmet', 'rig', 'backpack', 'challenge'];
+  const RAID_CATS = LO_CATS.filter(c => c !== 'ammo');
+  const ORDER = ['mode', 'map', 'rig', 'armor', 'helmet', 'backpack', 'ammo', 'challenge']; // kolejność liczenia (zależności)
+  const LO_LABEL = { map: 'Mapa', mode: 'Tryb', ammo: 'Amunicja', armor: 'Pancerz', helmet: 'Hełm', rig: 'Kamizelka', backpack: 'Plecak', challenge: 'Wyzwanie' };
+  const NONE = { armor: 'Bez pancerza', helmet: 'Bez hełmu', backpack: 'Bez plecaka', rig: 'Bez kamizelki' };
+  const DEF_OFF = { armor: ['0'], helmet: ['0'], backpack: ['0'], rig: ['0'], mode: ['Zombie Endless'] };
+  const lo = Object.assign({ on: {}, off: {}, rules: true, chance: 50, challenges: null, res: {}, locks: {}, budget: 'mid' }, state.lo || {});
+  lo.diffW = Object.assign({ N: 45, L: 35, F: 20 }, lo.diffW || {});
+  LO_CATS.forEach(c => {
+    if (typeof lo.on[c] !== 'boolean') lo.on[c] = true;
+    if (!Array.isArray(lo.off[c])) lo.off[c] = (DEF_OFF[c] || []).slice();
+  });
+  state.lo = lo;
+  const GT = {};
+  if (L) {
+    const withNone = arr => arr.some(t => String(t.tier) === '0') ? arr : [{ tier: 0, items: [] }, ...arr];
+    GT.armor = withNone(L.armor); GT.helmet = withNone(L.helmet); GT.backpack = L.backpack; GT.rig = L.rig;
+  }
+  const SIZE_LV = { S: 2, M: 3, L: 4, XL: 5 };
+  const itemLv = (cat, t, it) => (cat === 'armor' || cat === 'helmet') ? +t.tier : (it && it.armorClass) ? it.armorClass : SIZE_LV[t.tier] || 0;
+  const MODE_LV = { 'Normal': 2, 'Lockdown': 4, 'Infected Zone': 4, 'Forbidden': 6, 'Heavy Infected Zone': 6, 'Zombie Endless': 3 };
+  const MODE_ICON = { 'Normal': '🌤️', 'Lockdown': '🔒', 'Infected Zone': '🧟', 'Forbidden': '☠️', 'Heavy Infected Zone': '☣️', 'Zombie Endless': '♾️' };
+  const MODE_CAP = { 'Normal': 4, 'Lockdown': 5, 'Infected Zone': 5 }; // max klasa sprzętu i amunicji w trybie
+  // wejście do Lockdown/Forbidden wymaga minimalnej wartości sprzętu (Koen). Bez cen przedmiotów liczymy punkty:
+  // broń (S 3, A 2, B 1, C/D 0) + klasa pancerza + klasa hełmu ≥ próg trybu
+  const MODE_NEED = { 'Lockdown': 6, 'Infected Zone': 6, 'Forbidden': 8, 'Heavy Infected Zone': 8 };
+  const WEAPON_PTS = { S: 3, A: 2, B: 1, C: 0, D: 0 };
+  const MODE_VALUE = { 'Lockdown': '~150 tys.', 'Infected Zone': '~150 tys.', 'Forbidden': '~450 tys. (Airport ~600 tys.)', 'Heavy Infected Zone': '~450 tys. (Airport ~600 tys.)' };
+  const allModes = L ? Object.keys(L.modes) : [];
+  const ammoLvls = L ? [...new Set(Object.values(L.ammo).flat().map(a => a.lv))].sort((a, b) => a - b) : [];
+  const challenges = () => (lo.challenges || DEFAULT_CHALLENGES).map(s => s.trim()).filter(Boolean);
+  const rnd = a => a[crypto.getRandomValues(new Uint32Array(1))[0] % a.length];
+  const wrnd = (a, w) => { // losowanie ważone; gdy wszystkie wagi 0 → równo
+    const ws = a.map(w), sum = ws.reduce((x, y) => x + y, 0);
+    if (!(sum > 0)) return rnd(a);
+    let x = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 * sum;
+    for (let i = 0; i < a.length; i++) { if ((x -= ws[i]) < 0) return a[i]; }
+    return a[a.length - 1];
+  };
+  // poziom trudności trybu: N = Normal, L = Lockdown/Infected, F = Forbidden/Heavy Infected, E = Endless
+  const MODE_GRP = { 'Normal': 'N', 'Lockdown': 'L', 'Infected Zone': 'L', 'Forbidden': 'F', 'Heavy Infected Zone': 'F', 'Zombie Endless': 'E' };
+  // budżet: waga dla poziomu/klasy 0–7 (pancerz, hełm, rig, plecak, amunicja)
+  const BUDGETS = {
+    low:  { label: 'tani',   w: [3, 4, 4, 3, 1.2, .5, .2, .1] },
+    mid:  { label: 'średni', w: [1, 2, 3.5, 4, 3, 1.3, .6, .3] },
+    high: { label: 'bogaty', w: [.2, .4, 1, 2, 4, 4, 3, 2] },
+    flat: { label: 'równo',  w: [1, 1, 1, 1, 1, 1, 1, 1] },
+  };
+  // sh > 0 przesuwa szczyt rozkładu w stronę lepszych klas, sh < 0 w stronę gorszych (interpolacja tabeli wag)
+  const bw = (lv, sh = 0) => { const w = (BUDGETS[lo.budget] || BUDGETS.mid).w, x = Math.max(0, Math.min(7, lv - sh)), i = Math.floor(x), f = x - i;
+    return w[i] * (1 - f) + (w[Math.min(7, i + 1)] || w[i]) * f; };
+  // „w co poszła kasa”: na każdy rajd pancerz↔hełm i kamizelka↔plecak dostają przeciwne przesunięcia (albo zbalansowane)
+  let skew = {};
+  const rollSkew = () => { const one = () => { const r = Math.random(); return r < .5 ? 0 : r < .75 ? 1.6 : -1.6; };
+    const a = one(), b = one(); skew = { armor: a, helmet: -a, rig: b, backpack: -b }; };
+  const tierLv = (cat, t) => String(t.tier) === '0' ? 0 : (cat === 'armor' || cat === 'helmet') ? +t.tier : t.tier === 'A' ? 4 : SIZE_LV[t.tier] || 0;
+  const offHas = (c, id) => lo.off[c].includes(String(id));
+  const cap = () => lo.rules && lo.on.mode && lo.res.mode ? (MODE_CAP[lo.res.mode.n] || 99) : 99;
+  const need = () => lo.rules && lo.on.mode && lo.res.mode ? (MODE_NEED[lo.res.mode.n] || 0) : 0;
+  const wpts = () => curWeapon ? (WEAPON_PTS[curWeapon.tier] || 0) : 0;
+  const maxProt = () => Math.min(cap(), 6);
+  // aktualna klasa ochrony; null = jeszcze nie wylosowana / kategoria wyłączona (wtedy zakładamy maksimum)
+  const protCls = which => {
+    if (which === 'armor') {
+      const ar = armoredRig(); if (ar) return ar.armorClass;
+      const r = lo.on.armor && lo.res.armor; if (!r || r.t === 'rig') return null; return +r.t || 0;
+    }
+    const r = lo.on.helmet && lo.res.helmet; return r ? +r.t || 0 : null;
+  };
+  const lowFor = which => { const o = protCls(which === 'armor' ? 'helmet' : 'armor'); return Math.min(maxProt(), need() - wpts() - (o === null ? maxProt() : o)); };
+  const isProt = (cat, it) => cat === 'armor' || cat === 'helmet' || (cat === 'rig' && it && it.armorClass);
+  const lvOk = (cat, t, it) => { const lv = itemLv(cat, t, it); return lv <= cap() && (!isProt(cat, it) || lv >= lowFor(cat === 'helmet' ? 'helmet' : 'armor')); };
+  const noneOk = cat => !(cat === 'armor' || cat === 'helmet') || 0 >= lowFor(cat);
+  const gearScore = () => { const a = protCls('armor'), h = protCls('helmet'); return a === null || h === null ? null : wpts() + a + h; };
+  const curMap = () => lo.on.map && lo.res.map ? L.maps.find(m => m.name === lo.res.map.n) : null;
+  const caliberList = () => curWeapon ? (L.ammo[L.weaponCaliber[curWeapon.name]] || []) : [];
+  const ammoItem = r => r && caliberList().find(a => a.name === r.n);
+  const gearItem = (cat, r) => { const t = GT[cat].find(t => String(t.tier) === r.t); return t ? [t, t.items.find(i => i.name === r.n)] : [null, null]; };
+  const armoredRig = () => { const r = lo.on.rig && lo.res.rig; return r && r.t === 'A' ? gearItem('rig', r)[1] : null; };
+  let curWeapon = null;
+
+  function pick(cat) {
+    const c = cap();
+    if (cat === 'map') { // mapa pasująca do wylosowanego trybu
+      const md = lo.on.mode && lo.res.mode && lo.res.mode.n;
+      const fits = m => !md || m.modes.includes(md);
+      let ms = L.maps.filter(m => !offHas('map', m.name) && fits(m));
+      if (!ms.length) ms = L.maps.filter(fits);
+      return ms.length ? { n: rnd(ms).name } : null;
+    }
+    if (cat === 'mode') { // najpierw poziom trudności (wagi z ustawień), potem konkretny tryb
+      const m = curMap();
+      const avail = m ? m.modes : allModes.filter(x => !lo.on.map || L.maps.some(mp => !offHas('map', mp.name) && mp.modes.includes(x)));
+      let ms = avail.filter(x => !offHas('mode', x));
+      if (!ms.length) ms = avail.slice();
+      if (!ms.length) return null;
+      const grpCount = g => ms.filter(x => MODE_GRP[x] === g).length;
+      return { n: wrnd(ms, x => { const g = MODE_GRP[x] || 'E'; return (g === 'E' ? 10 : +lo.diffW[g] || 0) / grpCount(g); }) };
+    }
+    if (cat === 'ammo') {
+      const all = caliberList(); if (!all.length) return null;
+      let as = all.filter(a => !offHas('ammo', a.lv) && a.lv <= c);
+      if (!as.length) as = all.filter(a => a.lv <= c);
+      if (!as.length) as = all;
+      return { n: wrnd(as, a => bw(a.lv)).name };
+    }
+    if (cat === 'challenge') { const ch = challenges(); return { n: ch.length && Math.random() * 100 < lo.chance ? rnd(ch) : null }; }
+    if (cat === 'armor' && armoredRig()) return { t: 'rig' };
+    const ok = x => String(x.t.tier) === '0' ? noneOk(cat) : x.items.length > 0;
+    const all = GT[cat].map(t => ({ t, items: t.items.filter(it => lvOk(cat, t, it)) })).filter(ok);
+    let tiers = all.filter(x => !offHas(cat, x.t.tier));
+    if (!tiers.length) tiers = all; // wyłączone w ustawieniach kłóci się z zasadami trybu → zasady wygrywają
+    if (!tiers.length) return { t: '0', n: null };
+    const x = wrnd(tiers, x => bw(tierLv(cat, x.t), skew[cat] || 0));
+    return { t: String(x.t.tier), n: x.items.length ? rnd(x.items).name : null };
+  }
+  function valid(cat) {
+    const r = lo.res[cat]; if (!r) return false;
+    if (cat === 'map') { const m = L.maps.find(m => m.name === r.n), md = lo.on.mode && lo.res.mode && lo.res.mode.n; return !!m && (!md || m.modes.includes(md)); }
+    if (cat === 'mode') { const m = curMap(); return (m ? m.modes : allModes).includes(r.n); }
+    if (cat === 'ammo') { const a = ammoItem(r); return !!a && a.lv <= cap(); }
+    if (cat === 'challenge') return true;
+    if (cat === 'armor') { if (armoredRig()) return r.t === 'rig'; if (r.t === 'rig') return false; }
+    if (r.t === '0') return noneOk(cat);
+    const [t, it] = gearItem(cat, r);
+    return !!it && lvOk(cat, t, it);
+  }
+  // przelosuj kategorie z `force` (poza zablokowanymi) + wszystko, co przestało pasować (np. amunicja do nowej broni)
+  function computeRoll(force) {
+    const changed = [];
+    if (force.has('armor') && force.has('helmet')) rollSkew(); // nowy rajd = nowe rozłożenie wartości
+    // przelosowywane kategorie najpierw czyścimy, żeby np. nowy tryb nie był ograniczony starą mapą
+    ORDER.forEach(cat => { if (cat !== 'ammo' && force.has(cat) && !lo.locks[cat] && lo.on[cat]) lo.res[cat] = null; });
+    ORDER.forEach(cat => {
+      if (!lo.on[cat]) return;
+      // amunicja losuje się tylko na żądanie („Losuj ammo”); gdy przestaje pasować, czeka na klik
+      if (cat === 'ammo' && !force.has('ammo')) { if (lo.res.ammo && !valid('ammo')) lo.res.ammo = null; return; }
+      const f = force.has(cat) && (!lo.locks[cat] || lo.res[cat] == null);
+      if (f || (lo.res[cat] != null && !valid(cat))) { lo.res[cat] = pick(cat); changed.push(cat); }
+    });
+    save(); paintSlot('ammo'); showAmmoPick(); return changed;
+  }
+
+  function slotView(cat, r) {
+    if (!r) return { empty: true, name: cat === 'ammo' && !curWeapon ? 'najpierw broń' : 'jeszcze nie losowano' };
+    if (cat === 'map') { const m = L.maps.find(x => x.name === r.n); return m ? { name: m.name, sub: m.pl !== m.name ? m.pl : '', bg: m.img, g: 'gm', lv: 3 } : { empty: true }; }
+    if (cat === 'mode') { const cp = MODE_CAP[r.n], nd = MODE_NEED[r.n], sc = gearScore();
+      const rule = !lo.rules ? '' : [cp ? `max kl. ${cp}` : '', nd ? `sprzęt ${sc === null ? '?' : sc}/${nd} pkt` + (sc !== null && sc >= nd ? ' ✓' : '') : ''].filter(Boolean).join(' · ');
+      return { name: r.n, icon: MODE_ICON[r.n] || '🎲', g: 'g' + (MODE_LV[r.n] || 3), lv: MODE_LV[r.n] || 3,
+        sub: rule + (MODE_VALUE[r.n] ? ' · wejście ' + MODE_VALUE[r.n] + ' Koen' : ''), title: (L.modes[r.n] || '') + (MODE_VALUE[r.n] ? `\nMinimalna wartość sprzętu: ${MODE_VALUE[r.n]} Koen (dane z S4, mogły się zmienić).\nPrzybliżenie w punktach: broń S 3 / A 2 / B 1 / C, D 0 + klasa pancerza + klasa hełmu ≥ ${nd}.` : '') }; }
+    if (cat === 'ammo') { const a = ammoItem(r); if (!a) return { empty: true, name: '?' };
+      return { name: a.name, img: a.img, badge: 'LV.' + a.lv, sub: L.weaponCaliber[curWeapon.name], g: 'g' + a.lv, lv: a.lv, title: `penetracja ${a.pen ?? '?'}, obrażenia ${a.dmg ?? '?'}` }; }
+    if (cat === 'challenge') return r.n ? { name: r.n, icon: '🎯', g: 'g5', lv: 5 } : { name: 'Bez wyzwania — graj normalnie', icon: '😌', g: 'g0', lv: 1 };
+    if (r.t === 'rig') { const it = armoredRig(); return { name: 'Pancerz w rigu', sub: it ? it.name : '', badge: 'KL. ' + (it ? it.armorClass : '?'), img: it && it.img, icon: '↪', g: 'g' + (it ? it.armorClass : 0), lv: it ? it.armorClass : 0 }; }
+    if (r.t === '0') return { name: NONE[cat], icon: '∅', g: 'g0', lv: 0 };
+    const [t, it] = gearItem(cat, r); if (!it) return { empty: true, name: '?' };
+    const lv = itemLv(cat, t, it);
+    const badge = (cat === 'armor' || cat === 'helmet') ? 'KL. ' + t.tier : t.tier === 'A' ? 'OPANC. KL. ' + it.armorClass : t.tier;
+    return { name: it.name, img: it.img, badge, sub: cat === 'rig' || cat === 'backpack' ? it.note : '', g: 'g' + lv, lv, title: it.note || '' };
+  }
+  function flickerPool(cat) {
+    if (cat === 'map') return L.maps.map(m => slotView(cat, { n: m.name }));
+    if (cat === 'mode') return allModes.map(n => slotView(cat, { n }));
+    if (cat === 'ammo') return caliberList().map(a => slotView(cat, { n: a.name }));
+    if (cat === 'challenge') return challenges().map(n => slotView(cat, { n }));
+    return GT[cat].flatMap(t => t.items.map(it => slotView(cat, { t: String(t.tier), n: it.name })));
+  }
+
+  const slotEls = {};
+  function buildSlots() {
+    const box = $('loadout'); box.innerHTML = '';
+    Object.keys(slotEls).forEach(k => delete slotEls[k]);
+    const ap = $('ammoPick'); ap.innerHTML = '';
+    const any = !!L && RAID_CATS.some(c => lo.on[c]);
+    $('raid').hidden = !any;
+    if (L && lo.on.ammo) {
+      ap.innerHTML = '<div class="sl-img"></div><div><div class="sl-label">Amunicja</div><div class="sl-name"></div><div class="sl-sub"></div></div><button class="lock"></button>';
+      ap.querySelector('.lock').onclick = e => { e.stopPropagation(); lo.locks.ammo = !lo.locks.ammo; SFX.lock(); save(); paintSlot('ammo'); };
+      ap.onclick = () => rerollOne('ammo');
+      slotEls.ammo = ap; paintSlot('ammo');
+    }
+    showAmmoPick();
+    if (!any) return;
+    RAID_CATS.forEach(cat => {
+      if (!lo.on[cat]) return;
+      const el = document.createElement('div'); el.dataset.cat = cat;
+      el.innerHTML = '<button class="lock"></button><div class="sl-label"></div><div class="sl-img"></div><div class="sl-name"></div><div class="sl-sub"></div>';
+      el.querySelector('.sl-label').textContent = LO_LABEL[cat];
+      const lk = el.querySelector('.lock'); lk.title = 'Zablokuj / odblokuj przy kolejnych losowaniach';
+      lk.onclick = e => { e.stopPropagation(); lo.locks[cat] = !lo.locks[cat]; SFX.lock(); save(); paintSlot(cat); };
+      el.onclick = () => rerollOne(cat);
+      slotEls[cat] = el; box.append(el); paintSlot(cat);
+    });
+  }
+  function paintSlot(cat, v) {
+    const el = slotEls[cat]; if (!el) return;
+    v = v || slotView(cat, lo.res[cat]);
+    el.className = (cat === 'ammo' ? 'ammo-pick ' : 'slot ' + cat + ' ') + (v.g || '') + (v.empty ? ' empty' : '') + (lo.locks[cat] ? ' locked' : '');
+    el.querySelector('.lock').textContent = lo.locks[cat] ? '🔒' : '🔓';
+    const im = el.querySelector('.sl-img'); im.innerHTML = '';
+    if (v.img) { const i = document.createElement('img'); i.src = v.img; i.alt = ''; im.append(i); } else im.textContent = v.icon || (v.empty ? '?' : '');
+    if (cat === 'map') el.style.backgroundImage = v.bg ? `url("${v.bg}")` : '';
+    el.querySelector('.sl-name').textContent = v.name || '';
+    const sub = el.querySelector('.sl-sub');
+    if (sub) { sub.innerHTML = ''; if (v.badge) { const b = document.createElement('span'); b.className = 'tb'; b.textContent = v.badge; sub.append(b); } if (v.sub) sub.append(document.createTextNode(v.sub)); }
+    el.title = (v.title ? v.title + '\n' : '') + 'Klik = przelosuj ten slot';
+  }
+  const showAmmoPick = () => {
+    const idle = $('ammoReel').hidden && !$('stage').classList.contains('spinning');
+    $('ammoPick').hidden = !(slotEls.ammo && curWeapon && lo.res.ammo && idle);
+    $('rollAmmo').hidden = !(slotEls.ammo && curWeapon && !lo.res.ammo && idle);
+  };
+  // sloty odsłaniają się po kolei, z lekkim zakładkiem: miganie opcji → wynik
+  function animateSlots(cats, done) {
+    cats = LO_CATS.filter(c => cats.includes(c) && slotEls[c]);
+    if (!cats.length) { done && done(); return; }
+    let left = cats.length;
+    cats.forEach((cat, i) => setTimeout(() => {
+      const el = slotEls[cat], pool = flickerPool(cat); let n = 0;
+      const step = () => {
+        if (n++ < 7 && pool.length > 1) { paintSlot(cat, rnd(pool)); el.classList.add('rolling'); SFX.tick(.4); setTimeout(step, 40 + n * 12); return; }
+        const v = slotView(cat, lo.res[cat]); paintSlot(cat, v); el.classList.add('reveal'); SFX.reveal(v.lv || 0);
+        setTimeout(() => el.classList.remove('reveal'), 500);
+        if (--left === 0) setTimeout(() => done && done(), 300);
+      };
+      step();
+    }, i * 320));
+  }
+  // mała ruletka amunicji pod nazwą broni (ta sama mechanika co duża taśma)
+  function miniReel(pool, win, done) {
+    const box = $('ammoReel');
+    if (!pool.length || !win) { done(); return; }
+    const ITEM = 120, GAP = 8, STEP = ITEM + GAP, WIN_IDX = 32, TOTAL = 37;
+    const strip = document.createElement('div'); strip.className = 'strip';
+    let prev = null;
+    for (let k = 0; k < TOTAL; k++) {
+      let v = win;
+      if (k !== WIN_IDX) { do { v = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && v === prev); }
+      prev = v;
+      const it = document.createElement('div'); it.className = 'ri ' + v.g;
+      const b = document.createElement('span'); b.className = 'tb'; b.textContent = v.badge || ''; it.append(b);
+      if (v.img) { const im = document.createElement('img'); im.src = v.img; im.alt = ''; it.append(im); }
+      const n = document.createElement('div'); n.className = 'n'; n.textContent = v.name; it.append(n);
+      strip.append(it);
+    }
+    const reel = document.createElement('div'); reel.className = 'reel';
+    const ptr = document.createElement('div'); ptr.className = 'pointer';
+    reel.append(strip, ptr);
+    const lab = document.createElement('div'); lab.className = 'mr-label';
+    lab.textContent = 'Amunicja · ' + (L.weaponCaliber[curWeapon.name] || '');
+    box.innerHTML = ''; box.append(lab, reel); box.hidden = false; box.classList.remove('out'); showAmmoPick();
+    const jitter = (Math.random() * 0.8 - 0.4) * ITEM;
+    const target = WIN_IDX * STEP + ITEM / 2 - reel.clientWidth / 2 + jitter;
+    void strip.offsetWidth;
+    strip.style.transition = 'transform 3.2s cubic-bezier(.1,.6,.15,1)';
+    strip.style.transform = `translateX(${-target}px)`;
+    const half = reel.clientWidth / 2; let lastIdx = -1, fin = false;
+    const watch = () => {
+      if (fin) return;
+      const x = -new DOMMatrixReadOnly(getComputedStyle(strip).transform).m41, idx = Math.floor((x + half) / STEP);
+      if (idx !== lastIdx) { if (lastIdx !== -1) SFX.tick(.7); lastIdx = idx; }
+      requestAnimationFrame(watch);
+    };
+    requestAnimationFrame(watch);
+    const finish = () => {
+      if (fin) return; fin = true;
+      strip.children[WIN_IDX].classList.add('win'); SFX.reveal(win.lv || 0);
+      setTimeout(() => { box.classList.add('out'); setTimeout(() => { box.hidden = true; box.innerHTML = ''; showAmmoPick(); done(); }, 350); }, 1100);
+    };
+    strip.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 3800);
+  }
+  // amunicja przez małą ruletkę, reszta slotów miga po kolei
+  function playRoll(changed, done) {
+    const fin = done; done = () => { paintSlot('mode'); fin && fin(); }; // wynik punktów w slocie trybu
+    const rest = changed.filter(c => c !== 'ammo');
+    if (changed.includes('ammo') && slotEls.ammo && lo.res.ammo) {
+      const pool = flickerPool('ammo'), v = slotView('ammo', lo.res.ammo);
+      miniReel(pool, pool.find(p => p.name === v.name) || v, () => {
+        paintSlot('ammo'); showAmmoPick(); slotEls.ammo.classList.add('reveal'); setTimeout(() => slotEls.ammo && slotEls.ammo.classList.remove('reveal'), 500);
+        animateSlots(rest, done);
+      });
+    } else animateSlots(changed, done);
+  }
+  function rerollOne(cat) {
+    if (spinning) return;
+    if (lo.locks[cat]) { SFX.lock(); return; }
+    spinning = true; updateCount();
+    playRoll(computeRoll(new Set([cat])), () => { spinning = false; updateCount(); });
+  }
+  function afterWeapon(done) {
+    // nowa broń → stara amunicja znika (chyba że zablokowana i pasuje kalibrem); nową losuje „Losuj ammo”
+    if (L && !(lo.locks.ammo && valid('ammo'))) lo.res.ammo = null;
+    if (!L) { done(); return; }
+    // inna broń = inna wartość sprzętu → przelosuj tylko te sloty rajdu, które przestały spełniać zasady trybu
+    playRoll(computeRoll(new Set()), () => { paintSlot('mode'); done(); showAmmoPick(); });
+  }
+  function rollAmmo() {
+    if (spinning || !L || !slotEls.ammo || !curWeapon) return;
+    spinning = true; updateCount(); $('rollAmmo').hidden = true;
+    const keep = lo.locks.ammo && valid('ammo');
+    if (!keep) lo.res.ammo = null;
+    playRoll(computeRoll(new Set(['ammo'])), () => { spinning = false; updateCount(); showAmmoPick(); });
+  }
+  $('rollAmmo').onclick = rollAmmo;
+  function rollRaid() {
+    if (spinning || !L) return;
+    if (!$('raid').classList.contains('open')) setRaidOpen(true);
+    spinning = true; updateCount();
+    // tryb może zmienić limit klasy → niepasująca amunicja przelosuje się małą ruletką
+    playRoll(computeRoll(new Set(RAID_CATS)), () => { spinning = false; updateCount(); });
+  }
+  function setRaidOpen(open) {
+    lo.open = open; save();
+    $('raid').classList.toggle('open', open); $('raidBody').hidden = !open;
+    $('raidToggle').setAttribute('aria-expanded', open);
+  }
+  $('raidToggle').onclick = () => { setRaidOpen(!lo.open); SFX.click(lo.open); };
+  $('rollRaid').onclick = rollRaid;
+  function renderBudget() {
+    const el = $('budget'); el.innerHTML = 'budżet:';
+    Object.entries(BUDGETS).forEach(([k, b]) => {
+      const bt = document.createElement('button'); bt.textContent = b.label; bt.classList.toggle('on', lo.budget === k);
+      bt.onclick = () => { lo.budget = k; save(); SFX.click(true); renderBudget(); };
+      el.append(bt);
+    });
+  }
+  renderBudget();
+
+  function renderLoSet() {
+    const box = $('loSet'); box.innerHTML = '';
+    if (!L) { box.textContent = 'Brak danych zestawu (loadout.js).'; return; }
+    const opts = cat => {
+      if (cat === 'map') return L.maps.map(m => ({ id: m.name, label: m.name, g: 'gm', title: m.pl }));
+      if (cat === 'mode') return allModes.map(n => ({ id: n, label: (MODE_ICON[n] || '') + ' ' + n, g: 'g' + (MODE_LV[n] || 3), title: L.modes[n] }));
+      if (cat === 'ammo') return ammoLvls.map(lv => ({ id: String(lv), badge: 'LV.' + lv, g: 'g' + lv, title: 'amunicja poziomu ' + lv }));
+      if (cat === 'armor' || cat === 'helmet') return GT[cat].map(t => String(t.tier) === '0' ? { id: '0', label: NONE[cat], g: 'g0' } : { id: String(t.tier), badge: 'KL. ' + t.tier, label: `(${t.items.length})`, g: 'g' + t.tier });
+      return GT[cat].map(t => ({ id: String(t.tier), label: String(t.tier) === '0' ? NONE[cat] : t.label, g: 'g' + (t.tier === 'A' ? 5 : SIZE_LV[t.tier] || 0) }));
+    };
+    LO_CATS.forEach(cat => {
+      const sec = document.createElement('div'); sec.className = 'lo-cat' + (lo.on[cat] ? '' : ' disabled');
+      const head = document.createElement('div'); head.className = 'lo-cat-head';
+      const lab = document.createElement('label'); lab.className = 'chk';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = lo.on[cat];
+      cb.onchange = () => { lo.on[cat] = cb.checked; save(); buildSlots(); renderLoSet(); };
+      const st = document.createElement('strong'); st.textContent = LO_LABEL[cat];
+      lab.append(cb, st); head.append(lab);
+      sec.append(head);
+      if (cat === 'challenge') {
+        const ctl = document.createElement('div'); ctl.className = 'chips';
+        const rl = document.createElement('label'); rl.className = 'chk';
+        const rg = document.createElement('input'); rg.type = 'range'; rg.min = 0; rg.max = 100; rg.step = 5; rg.value = lo.chance;
+        const rv = document.createElement('span'); rv.textContent = `szansa na wyzwanie: ${lo.chance}%`;
+        rg.oninput = () => { lo.chance = +rg.value; rv.textContent = `szansa na wyzwanie: ${lo.chance}%`; save(); };
+        rl.append(rv, rg);
+        const rs = document.createElement('button'); rs.textContent = 'przywróć domyślną listę';
+        rs.onclick = () => { lo.challenges = null; save(); renderLoSet(); };
+        ctl.append(rl, rs);
+        const ta = document.createElement('textarea'); ta.value = challenges().join('\n'); ta.spellcheck = false;
+        ta.placeholder = 'Jedno wyzwanie w linii';
+        ta.oninput = () => { lo.challenges = ta.value.split('\n'); save(); };
+        const hint = document.createElement('div'); hint.className = 'count'; hint.textContent = 'Jedno wyzwanie w linii — możesz dopisywać własne.';
+        sec.append(ctl, hint, ta); box.append(sec); return;
+      }
+      const ch = document.createElement('div'); ch.className = 'chips';
+      const os = opts(cat);
+      os.forEach(o => {
+        const b = document.createElement('button'); b.className = o.g + (offHas(cat, o.id) ? ' offc' : '');
+        if (o.badge) { const bd = document.createElement('span'); bd.className = 'tb'; bd.textContent = o.badge; b.append(bd); }
+        if (o.label) b.append(document.createTextNode(o.label));
+        if (o.title) b.title = o.title;
+        b.onclick = () => { const a = lo.off[cat], i = a.indexOf(o.id); i >= 0 ? a.splice(i, 1) : a.push(o.id); SFX.click(i >= 0); save(); renderLoSet(); };
+        ch.append(b);
+      });
+      const cnt = document.createElement('span'); cnt.className = 'count';
+      cnt.textContent = `${os.filter(o => !offHas(cat, o.id)).length} / ${os.length} w puli`;
+      head.append(cnt);
+      sec.append(ch);
+      if (cat === 'mode') {
+        const dw = document.createElement('div'); dw.className = 'diffw';
+        const tot = () => (+lo.diffW.N || 0) + (+lo.diffW.L || 0) + (+lo.diffW.F || 0) || 1;
+        const outs = {};
+        const upd = () => Object.keys(outs).forEach(k => outs[k].textContent = Math.round((+lo.diffW[k] || 0) / tot() * 100) + '%');
+        [['N', 'Normal'], ['L', 'Lockdown / Infected'], ['F', 'Forbidden / Heavy Infected']].forEach(([k, name]) => {
+          const l = document.createElement('span'); l.textContent = name;
+          const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.step = 5; r.value = lo.diffW[k];
+          const o = document.createElement('span'); outs[k] = o;
+          r.oninput = () => { lo.diffW[k] = +r.value; save(); upd(); };
+          dw.append(l, r, o);
+        });
+        upd();
+        const dh = document.createElement('div'); dh.className = 'count'; dh.style.marginTop = '8px';
+        dh.textContent = 'Szansa poziomu trudności (najpierw losuje się poziom, potem tryb i mapa, na której on jest):';
+        sec.append(dh, dw);
+        const rl = document.createElement('label'); rl.className = 'chk'; rl.style.marginTop = '8px';
+        const rc = document.createElement('input'); rc.type = 'checkbox'; rc.checked = lo.rules;
+        rc.onchange = () => { lo.rules = rc.checked; save(); };
+        rl.append(rc, document.createTextNode(' pilnuj zasad trybu: Normal → sprzęt i amunicja max kl. 4; Lockdown / Infected Zone → max kl. 5 i wartość sprzętu ≥ 6 pkt (wejście od ~150 tys. Koen); Forbidden / Heavy Infected Zone → wartość ≥ 8 pkt (~450 tys., Airport ~600 tys.). Punkty to przybliżenie wartości: broń S 3 / A 2 / B 1 / C, D 0 + klasa pancerza + klasa hełmu.'));
+        sec.append(rl);
+      }
+      if (cat === 'ammo') { const h = document.createElement('div'); h.className = 'count'; h.style.marginTop = '6px'; h.textContent = 'Losuje tylko naboje pasujące do kalibru broni; gdy żaden wybrany poziom nie pasuje, bierze dowolny dostępny.'; sec.append(h); }
+      box.append(sec);
+    });
+  }
+
   let spinning = false;
   function roll() {
     if (spinning) return;
@@ -393,7 +1051,7 @@
     if (!p.length) return;
     spinning = true; updateCount();
     const stage = $('stage');
-    stage.classList.remove('win'); stage.classList.add('spinning');
+    stage.classList.remove('win'); stage.classList.add('spinning'); showAmmoPick();
     cards.forEach(c => c.classList.remove('hit'));
 
     // uczciwy los: zwycięzca wybierany od razu, taśma to tylko efekt
@@ -452,7 +1110,10 @@
       cards.get(winner.name)?.classList.add('hit');
       if (state.noRepeat) used.add(winner.name);
       state.history.unshift(winner.name); state.history = state.history.slice(0, 20);
-      setTimeout(() => { show(winner); spinning = false; refresh(); renderHistory(); }, 1400);
+      setTimeout(() => {
+        show(winner); curWeapon = winner; refresh(); renderHistory();
+        afterWeapon(() => { spinning = false; updateCount(); });
+      }, 1400);
     };
     strip.addEventListener('transitionend', finish, { once: true });
     setTimeout(finish, 9300); // zapas, gdyby karta była w tle i transitionend nie przyszedł
@@ -460,13 +1121,16 @@
 
   $('roll').onclick = roll;
   document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'TEXTAREA') return; // pisanie wyzwań
     // spacja zawsze losuje (także gdy fokus jest na innym przycisku/checkboksie)
     if (e.code === 'Space' && !e.repeat) { e.preventDefault(); roll(); }
+    if (e.code === 'KeyR' && !e.repeat && !e.ctrlKey && !e.metaKey) rollRaid();
+    if (e.code === 'KeyA' && !e.repeat && !e.ctrlKey && !e.metaKey) rollAmmo();
     if (e.code === 'KeyM' && !e.repeat) { state.muted = !state.muted; syncSound(); }
   });
 
-  refresh(); renderHistory();
-  if (state.history[0]) { const w = W.find(x => x.name === state.history[0]); if (w) show(w); }
+  if (state.history[0]) { const w = W.find(x => x.name === state.history[0]); if (w) { show(w); curWeapon = w; } }
+  refresh(); renderHistory(); buildSlots(); setRaidOpen(!!lo.open); setTab(state.tab);
 })();
 </script>
 </body>
