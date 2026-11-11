@@ -743,7 +743,7 @@
       let as = all.filter(a => !offHas('ammo', a.lv) && a.lv <= c);
       if (!as.length) as = all.filter(a => a.lv <= c);
       if (!as.length) as = all;
-      return { n: wrnd(as, a => bw(a.lv)).name };
+      return { n: rnd(as).name }; // każdy dozwolony nabój z równą szansą
     }
     if (cat === 'challenge') { const ch = challenges(); return { n: ch.length && Math.random() * 100 < lo.chance ? rnd(ch) : null }; }
     if (cat === 'armor' && armoredRig()) return { t: 'rig' };
